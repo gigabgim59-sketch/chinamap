@@ -1,338 +1,448 @@
 <style>
-  .cn-wrap{font-family:ui-sans-serif,system-ui,sans-serif;color:#3a3226;position:relative}
-  .cn-toolbar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px;font-size:12px;align-items:center}
-  .cn-toolbar button{background:#fff;border:1px solid #d6ccb4;padding:5px 10px;border-radius:6px;cursor:pointer;color:#3a3226;font-size:12px}
-  .cn-toolbar button:hover{background:#f5efe0}
-  .cn-toolbar button.active{background:#3a3226;color:#f5efe0;border-color:#3a3226}
-  .cn-dyn-bar{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px;font-size:12px;align-items:center;padding:6px 10px;background:#f9f5e8;border:1px solid #d6ccb4;border-radius:6px}
-  .cn-dyn-bar button{background:#fff;border:1px solid #d6ccb4;padding:4px 12px;border-radius:14px;cursor:pointer;font-size:12px;font-weight:600;color:#3a3226}
-  .cn-mode-bar{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px;font-size:12px;align-items:center;padding:4px 10px;background:#eef4f6;border:1px solid #d6ccb4;border-radius:6px}
-  .cn-mode-bar button{background:#fff;border:1px solid #d6ccb4;padding:3px 10px;border-radius:12px;cursor:pointer;font-size:11px;color:#3a3226}
-  .cn-mode-bar button.active{background:#5a7a95;color:#fff;border-color:#5a7a95}
-  .cn-stage{position:relative;background:#eef4f6;border:1px solid #d6ccb4;border-radius:8px;overflow:hidden;height:560px}
-  .cn-stage svg{width:100%;height:100%;display:block;cursor:grab;touch-action:none}
-  .cn-stage svg.dragging{cursor:grabbing}
-  .cn-panel{position:absolute;right:12px;top:12px;width:275px;max-height:500px;overflow-y:auto;background:rgba(255,255,255,.97);border:1px solid #d6ccb4;border-radius:8px;padding:14px;font-size:12.5px;line-height:1.55;box-shadow:0 2px 10px rgba(0,0,0,.08);opacity:0;transform:translateX(6px);transition:opacity .18s;pointer-events:none}
-  .cn-panel.show{opacity:1;transform:translateX(0);pointer-events:auto}
-  .cn-panel h3{margin:0 0 4px;font-size:15px;color:#5a3210;font-weight:800}
-  .cn-panel .han{font-size:12px;color:#8a7a55;margin-bottom:8px}
-  .cn-panel .tag{display:inline-block;font-size:10px;background:#f5efe0;color:#5a4a20;padding:2px 7px;border-radius:3px;margin-right:4px;margin-bottom:6px}
-  .cn-panel .tag.era{background:#ecdac0;color:#6a4210}
-  .cn-panel .desc{color:#3a2f18;white-space:pre-line}
-  .cn-panel .close{position:absolute;right:8px;top:6px;background:none;border:0;font-size:16px;cursor:pointer;color:#7a6a55}
-  .cn-dyn-info{margin-top:8px;padding:10px 12px;background:#fbf7ec;border:1px solid #d6ccb4;border-radius:6px;font-size:12.5px;line-height:1.5;color:#3a2f18;display:none}
-  .cn-dyn-info.show{display:block}
-  .cn-dyn-info b{color:#5a3210;font-size:14px}
-  .cn-dyn-info .yr{color:#8a6a30;font-weight:600;margin-left:6px}
-  .cn-zoom{position:absolute;left:12px;top:12px;display:flex;flex-direction:column;gap:4px}
-  .cn-zoom button{width:32px;height:32px;background:#fff;border:1px solid #d6ccb4;border-radius:6px;cursor:pointer;font-size:16px;color:#3a3226}
-  .cn-hint{position:absolute;left:12px;bottom:12px;font-size:11px;color:#7a6a55;background:rgba(255,255,255,.9);padding:4px 8px;border-radius:4px}
-  .cn-item{cursor:pointer}
-  .cn-item text{user-select:none}
-  .cn-item circle,.cn-item path,.cn-item ellipse,.cn-item rect{transition:filter .15s}
-  .cn-item:hover>*:not(text){filter:brightness(1.15) drop-shadow(0 0 3px rgba(0,0,0,.3))}
-  .cn-item:hover text{font-weight:900 !important;stroke-width:4 !important}
-  .cn-wrap.mode-core .cn-item[data-tier="2"] text,
-  .cn-wrap.mode-core .cn-item[data-tier="3"] text{display:none}
-  .cn-wrap.mode-std .cn-item[data-tier="3"] text{display:none}
+.cn-wrap{font-family:ui-sans-serif,system-ui,-apple-system,sans-serif;color:#3a3226;position:relative;--btn-h:36px;--btn-fs:13px}
+.cn-toolbar,.cn-dyn-bar,.cn-mode-bar{display:flex;gap:6px;flex-wrap:wrap;font-size:var(--btn-fs);align-items:center;margin-bottom:6px}
+.cn-toolbar button,.cn-dyn-bar button,.cn-mode-bar button{min-height:var(--btn-h);background:#fff;border:1px solid #d6ccb4;padding:6px 12px;border-radius:8px;cursor:pointer;color:#3a3226;font-size:var(--btn-fs);font-weight:600;-webkit-tap-highlight-color:transparent}
+.cn-toolbar button:hover,.cn-dyn-bar button:hover{background:#f5efe0}
+.cn-toolbar button.active{background:#3a3226;color:#f5efe0;border-color:#3a3226}
+.cn-dyn-bar{padding:8px 10px;background:#f9f5e8;border:1px solid #d6ccb4;border-radius:8px}
+.cn-dyn-bar button{border-radius:18px;padding:6px 14px}
+.cn-mode-bar{padding:6px 10px;background:#eef4f6;border:1px solid #d6ccb4;border-radius:8px}
+.cn-mode-bar button{border-radius:16px;padding:5px 12px}
+.cn-mode-bar button.active{background:#5a7a95;color:#fff;border-color:#5a7a95}
+.cn-group-label{font-weight:700;color:#5a3210;margin-right:2px}
+.cn-stage{position:relative;background:#eef4f6;border:1px solid #d6ccb4;border-radius:8px;overflow:hidden;height:min(70vh,620px);min-height:420px}
+.cn-stage svg{width:100%;height:100%;display:block;cursor:grab;touch-action:none}
+.cn-stage svg.dragging{cursor:grabbing}
+.cn-panel{position:absolute;right:12px;top:12px;width:290px;max-height:calc(100% - 24px);overflow-y:auto;background:rgba(255,255,255,.97);border:1px solid #d6ccb4;border-radius:10px;padding:16px;font-size:13.5px;line-height:1.6;box-shadow:0 4px 16px rgba(0,0,0,.12);opacity:0;transform:translateX(8px);transition:opacity .2s,transform .2s;pointer-events:none;-webkit-overflow-scrolling:touch}
+.cn-panel.show{opacity:1;transform:translateX(0);pointer-events:auto}
+.cn-panel h3{margin:0 0 4px;font-size:17px;color:#5a3210;font-weight:800;padding-right:32px}
+.cn-panel .han{font-size:13px;color:#8a7a55;margin-bottom:10px}
+.cn-panel .tag{display:inline-block;font-size:11px;background:#f5efe0;color:#5a4a20;padding:3px 9px;border-radius:4px;margin-right:4px;margin-bottom:8px;font-weight:600}
+.cn-panel .tag.era{background:#ecdac0;color:#6a4210}
+.cn-panel .desc{color:#3a2f18;white-space:pre-line}
+.cn-panel .close{position:absolute;right:8px;top:6px;background:#f5efe0;border:0;width:32px;height:32px;font-size:20px;line-height:1;cursor:pointer;color:#5a3210;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.cn-dyn-info{margin-top:8px;padding:12px 14px;background:#fbf7ec;border:1px solid #d6ccb4;border-radius:8px;font-size:13.5px;line-height:1.55;color:#3a2f18;display:none}
+.cn-dyn-info.show{display:block}
+.cn-dyn-info b{color:#5a3210;font-size:15px}
+.cn-dyn-info .yr{color:#8a6a30;font-weight:600;margin-left:6px}
+.cn-zoom{position:absolute;left:10px;top:10px;display:flex;flex-direction:column;gap:6px}
+.cn-zoom button{width:42px;height:42px;background:#fff;border:1px solid #d6ccb4;border-radius:8px;cursor:pointer;font-size:20px;font-weight:700;color:#3a3226;box-shadow:0 2px 6px rgba(0,0,0,.1);-webkit-tap-highlight-color:transparent}
+.cn-hint{position:absolute;left:10px;bottom:10px;font-size:11px;color:#7a6a55;background:rgba(255,255,255,.9);padding:5px 9px;border-radius:5px;max-width:calc(100% - 20px)}
+.cn-item{cursor:pointer}
+.cn-item text{user-select:none;-webkit-user-select:none}
+.cn-item circle,.cn-item path,.cn-item ellipse,.cn-item rect{transition:filter .15s}
+.cn-item:hover>*:not(text){filter:brightness(1.15) drop-shadow(0 0 3px rgba(0,0,0,.3))}
+.cn-item:hover text{font-weight:900 !important;stroke-width:4 !important}
+.cn-wrap.mode-core .cn-item[data-tier="2"] text,
+.cn-wrap.mode-core .cn-item[data-tier="3"] text{display:none}
+.cn-wrap.mode-std .cn-item[data-tier="3"] text{display:none}
+.cn-toggle{display:none}
+
+/* ===== 모바일 대응 ===== */
+@media (max-width:768px){
+  .cn-wrap{--btn-h:40px;--btn-fs:14px}
+  .cn-toggle{display:inline-flex;align-items:center;gap:6px;background:#3a3226;color:#f5efe0;border:0;padding:8px 14px;border-radius:8px;font-size:14px;font-weight:600;min-height:40px;cursor:pointer;-webkit-tap-highlight-color:transparent;margin-bottom:6px}
+  .cn-toggle::after{content:'▼';font-size:10px;transition:transform .2s}
+  .cn-toggle.open::after{transform:rotate(180deg)}
+  .cn-controls{display:none}
+  .cn-controls.open{display:block}
+  .cn-dyn-bar,.cn-toolbar,.cn-mode-bar{gap:6px;padding:8px}
+  .cn-dyn-bar button,.cn-toolbar button,.cn-mode-bar button{padding:8px 12px;font-size:13px}
+  .cn-stage{height:min(75vh,600px);border-radius:6px}
+  /* 패널을 하단 시트로 */
+  .cn-panel{
+    position:fixed;left:0;right:0;bottom:0;top:auto;width:100%;
+    max-width:100%;max-height:60vh;
+    border-radius:16px 16px 0 0;
+    transform:translateY(100%);opacity:1;
+    padding:18px 18px 24px;
+    box-shadow:0 -6px 20px rgba(0,0,0,.18);
+    z-index:100;
+    border:0;border-top:1px solid #d6ccb4;
+  }
+  .cn-panel.show{transform:translateY(0)}
+  .cn-panel::before{
+    content:'';display:block;width:40px;height:4px;background:#d6ccb4;
+    border-radius:2px;margin:-6px auto 12px;
+  }
+  .cn-panel h3{font-size:18px}
+  .cn-panel .close{width:36px;height:36px;font-size:22px;top:10px;right:10px}
+  .cn-zoom button{width:46px;height:46px;font-size:22px}
+  .cn-hint{font-size:10.5px;padding:4px 8px}
+  .cn-group-label{font-size:13px;width:100%;margin-bottom:4px}
+}
+
+@media (max-width:420px){
+  .cn-stage{height:min(72vh,540px);min-height:380px}
+  .cn-panel{max-height:65vh;padding:16px 16px 22px}
+  .cn-hint{display:none}
+}
 </style>
 
 <h2 class="sr-only">중국 역사 인터랙티브 지도 — 현실적 해안선·산둥/랴오둥 반도·발해만·타이완·하이난 포함.</h2>
-
 <div class="cn-wrap mode-detail" id="cn-wrap">
-  <div class="cn-dyn-bar">
-    <span style="font-weight:700;color:#5a3210">왕조 강역:</span>
-    <button data-dyn="qin">秦 진</button>
-    <button data-dyn="han">漢 한</button>
-    <button data-dyn="tang">唐 당</button>
-    <button data-dyn="nsong">北宋 북송</button>
-    <button data-dyn="ssong">南宋 남송</button>
-    <button data-dyn="yuan">元 원</button>
-    <button data-dyn="ming">明 명</button>
-    <button data-dyn="qing">淸 청</button>
-    <button data-dyn="none">해제</button>
-  </div>
 
-  <div class="cn-toolbar">
-    <span style="font-weight:700">레이어:</span>
-    <button data-layer="cities" class="active">도시</button>
-    <button data-layer="forts" class="active">성·관문</button>
-    <button data-layer="rivers" class="active">강·운하</button>
-    <button data-layer="terrain" class="active">지형</button>
-    <button data-layer="mountains" class="active">산·호수</button>
-    <button data-layer="wall" class="active">장성·실크로드</button>
-    <button data-layer="seas" class="active">바다</button>
-    <button id="cn-reset">전체 보기</button>
-  </div>
+<button class="cn-toggle" id="cn-toggle" aria-expanded="false">컨트롤 열기</button>
 
-  <div class="cn-mode-bar">
-    <span style="font-weight:600">라벨 밀도:</span>
-    <button data-mode="core">핵심</button>
-    <button data-mode="std">기본</button>
-    <button data-mode="detail" class="active">상세</button>
-    <span style="margin-left:auto;color:#7a6a55">모든 항목·해안·섬 클릭 가능</span>
-  </div>
+<div class="cn-controls" id="cn-controls">
+<div class="cn-dyn-bar">
+<span class="cn-group-label">왕조 강역</span>
+<button data-dyn="qin">秦 진</button>
+<button data-dyn="han">漢 한</button>
+<button data-dyn="tang">唐 당</button>
+<button data-dyn="nsong">北宋 북송</button>
+<button data-dyn="ssong">南宋 남송</button>
+<button data-dyn="yuan">元 원</button>
+<button data-dyn="ming">明 명</button>
+<button data-dyn="qing">淸 청</button>
+<button data-dyn="none">해제</button>
+</div>
 
-  <div class="cn-stage" id="cn-stage">
-    <svg viewBox="0 0 800 560" xmlns="http://www.w3.org/2000/svg" id="cn-svg">
-      <defs><filter id="cn-shadow" x="-40%" y="-40%" width="180%" height="180%"><feDropShadow dx="0" dy="1" stdDeviation="1" flood-opacity="0.2"/></filter></defs>
-      <g id="cn-viewport">
-        <rect x="0" y="0" width="800" height="560" fill="#e6eff2" pointer-events="none"/>
-        <g id="cn-seas" class="cn-layer" data-layer="seas"></g>
-        <!-- 중국 본토 (현실적 윤곽) -->
-        <g class="cn-item" data-name="중국 본토 (중원)" data-han="中國 · 中原" data-era="지리" data-desc="히말라야·파미르에서 태평양까지. 서북의 타클라마칸에서 동북의 흑룡강, 남단의 남해까지 대륙 본토. 신강 위구르 자치구(서역)·티베트(청장)·내몽골·만주·화북·화중·화남의 7개 지리 대구역으로 구분. '중원(中原)'은 좁게는 황하 중하류의 화북평원, 넓게는 이 대륙 전체를 가리키며 화하 문명의 무대.">
-          <path d="M 78,168 Q 105,145 145,132 Q 200,118 265,112 Q 335,108 405,105 Q 470,105 530,108 Q 580,115 615,125 Q 655,140 682,168 Q 695,198 690,222 Q 678,232 660,238 Q 638,245 620,242 Q 615,232 600,225 Q 592,235 583,250 Q 578,268 590,278 Q 605,278 620,275 Q 645,285 645,300 Q 625,312 618,320 Q 622,345 625,370 Q 625,398 615,420 Q 600,438 578,455 Q 545,468 500,475 Q 460,478 425,475 Q 395,472 375,462 Q 358,455 342,442 Q 328,428 315,415 Q 298,405 282,395 Q 262,382 245,368 Q 218,348 195,325 Q 170,305 145,275 Q 118,255 95,238 Q 82,220 72,205 Q 65,190 78,168 Z" fill="#f5efe0" stroke="#8a7550" stroke-width="1.3" stroke-linejoin="round"/>
-        </g>
-        <!-- 해남도 -->
-        <g class="cn-item" data-name="해남도" data-han="海南島 · 하이난" data-era="한~현대" data-desc="중국 최남단의 대형 섬(3.4만 km²). 한 무제가 BC 110년경 담이(儋耳)·주애(珠崖) 두 군을 설치하며 중국 왕조 편입. 이후 여러 차례 이탈·재편입. 당·송대 유배지로 활용 — 소동파(蘇軾)가 1097~1100년 여기 유배되어 시문 남김. 명·청대 여족(黎族) 자치. 현재 중국 최대 경제특구·자유무역항.">
-          <path d="M 462,492 Q 456,506 468,514 Q 490,516 498,504 Q 500,492 486,486 Q 470,485 462,492 Z" fill="#f5efe0" stroke="#8a7550" stroke-width="1"/>
-          <text x="480" y="503" font-size="9" fill="#7a5a30" font-style="italic" stroke="#fff" stroke-width="2" paint-order="stroke" text-anchor="middle" font-weight="700">해남도</text>
-        </g>
-        <!-- 대만 -->
-        <g class="cn-item" data-name="대만" data-han="臺灣 · Taiwan" data-era="명 말~현대" data-desc="명 말 정성공(鄭成功)이 1662년 네덜란드 동인도회사로부터 탈환, 반청 근거지로 삼음(동녕왕국). 청 강희제가 정씨 왕국을 정복(1683)하고 대만부 설치, 복건성 예속. 청일전쟁 후 시모노세키 조약으로 일본에 할양(1895~1945). 1949년 국공내전 후 중화민국 정부가 이전. 현재 중국·대만 양안 관계의 초점.">
-          <path d="M 638,432 Q 632,450 638,472 Q 648,476 653,458 Q 655,442 650,432 Q 644,428 638,432 Z" fill="#f5efe0" stroke="#8a7550" stroke-width="1"/>
-          <text x="662" y="455" font-size="9" fill="#7a5a30" font-style="italic" stroke="#fff" stroke-width="2" paint-order="stroke" font-weight="700">대만</text>
-        </g>
-        <path id="cn-dynasty" d="" fill="none" stroke="none" opacity="0.42" pointer-events="none"/>
-        <g id="cn-terrain" class="cn-layer" data-layer="terrain"></g>
-        <g id="cn-rivers" class="cn-layer" data-layer="rivers"></g>
-        <g id="cn-wall" class="cn-layer" data-layer="wall"></g>
-        <g id="cn-mountains" class="cn-layer" data-layer="mountains"></g>
-        <g id="cn-forts" class="cn-layer" data-layer="forts"></g>
-        <g id="cn-cities" class="cn-layer" data-layer="cities"></g>
-      </g>
-    </svg>
-    <div class="cn-zoom"><button id="cn-in">+</button><button id="cn-out">−</button></div>
-    <div class="cn-panel" id="cn-panel">
-      <button class="close" id="cn-close">×</button>
-      <h3 id="cn-p-name">항목을 클릭하세요</h3>
-      <div class="han" id="cn-p-han"></div>
-      <div id="cn-p-tags"></div>
-      <div class="desc" id="cn-p-desc">해안선을 실제 지리에 가깝게 다듬었습니다. 랴오둥·산둥 반도, 발해만 만입, 양쯔 삼각주, 히말라야 남쪽 곡선, 신장 서북 돌출, 그리고 하이난도·대만이 별개의 섬으로 표시됩니다.</div>
-    </div>
-    <div class="cn-hint">클릭: 상세 · 드래그: 이동 · 휠·+/−: 확대·축소</div>
-  </div>
+<div class="cn-toolbar">
+<span class="cn-group-label">레이어</span>
+<button data-layer="cities" class="active">도시</button>
+<button data-layer="forts" class="active">성·관문</button>
+<button data-layer="rivers" class="active">강·운하</button>
+<button data-layer="terrain" class="active">지형</button>
+<button data-layer="mountains" class="active">산·호수</button>
+<button data-layer="wall" class="active">장성·실크로드</button>
+<button data-layer="seas" class="active">바다</button>
+<button id="cn-reset">전체 보기</button>
+</div>
 
-  <div class="cn-dyn-info" id="cn-dyn-info"></div>
+<div class="cn-mode-bar">
+<span class="cn-group-label">라벨 밀도</span>
+<button data-mode="core">핵심</button>
+<button data-mode="std">기본</button>
+<button data-mode="detail" class="active">상세</button>
+</div>
+</div>
+
+<div class="cn-stage" id="cn-stage">
+<svg viewBox="0 0 800 560" xmlns="http://www.w3.org/2000/svg" id="cn-svg" preserveAspectRatio="xMidYMid meet">
+<defs><filter id="cn-shadow" x="-40%" y="-40%" width="180%" height="180%"><feDropShadow dx="0" dy="1" stdDeviation="1" flood-opacity="0.2"/></filter></defs>
+<g id="cn-viewport">
+<rect x="0" y="0" width="800" height="560" fill="#e6eff2" pointer-events="none"/>
+<g id="cn-seas" class="cn-layer" data-layer="seas"></g>
+<g class="cn-item" data-name="중국 본토 (중원)" data-han="中國 · 中原" data-era="지리" data-desc="히말라야·파미르에서 태평양까지. 서북의 타클라마칸에서 동북의 흑룡강, 남단의 남해까지 대륙 본토. 신강 위구르 자치구(서역)·티베트(청장)·내몽골·만주·화북·화중·화남의 7개 지리 대구역으로 구분. '중원(中原)'은 좁게는 황하 중하류의 화북평원, 넓게는 이 대륙 전체를 가리키며 화하 문명의 무대.">
+<path d="M 78,168 Q 105,145 145,132 Q 200,118 265,112 Q 335,108 405,105 Q 470,105 530,108 Q 580,115 615,125 Q 655,140 682,168 Q 695,198 690,222 Q 678,232 660,238 Q 638,245 620,242 Q 615,232 600,225 Q 592,235 583,250 Q 578,268 590,278 Q 605,278 620,275 Q 645,285 645,300 Q 625,312 618,320 Q 622,345 625,370 Q 625,398 615,420 Q 600,438 578,455 Q 545,468 500,475 Q 460,478 425,475 Q 395,472 375,462 Q 358,455 342,442 Q 328,428 315,415 Q 298,405 282,395 Q 262,382 245,368 Q 218,348 195,325 Q 170,305 145,275 Q 118,255 95,238 Q 82,220 72,205 Q 65,190 78,168 Z" fill="#f5efe0" stroke="#8a7550" stroke-width="1.3" stroke-linejoin="round"/>
+</g>
+<g class="cn-item" data-name="해남도" data-han="海南島 · 하이난" data-era="한~현대" data-desc="중국 최남단의 대형 섬(3.4만 km²). 한 무제가 BC 110년경 담이(儋耳)·주애(珠崖) 두 군을 설치하며 중국 왕조 편입. 이후 여러 차례 이탈·재편입. 당·송대 유배지로 활용 — 소동파(蘇軾)가 1097~1100년 여기 유배되어 시문 남김. 명·청대 여족(黎族) 자치. 현재 중국 최대 경제특구·자유무역항.">
+<path d="M 462,492 Q 456,506 468,514 Q 490,516 498,504 Q 500,492 486,486 Q 470,485 462,492 Z" fill="#f5efe0" stroke="#8a7550" stroke-width="1"/>
+<text x="480" y="503" font-size="10" fill="#7a5a30" font-style="italic" stroke="#fff" stroke-width="2.5" paint-order="stroke" text-anchor="middle" font-weight="700">해남도</text>
+</g>
+<g class="cn-item" data-name="대만" data-han="臺灣 · Taiwan" data-era="명 말~현대" data-desc="명 말 정성공(鄭成功)이 1662년 네덜란드 동인도회사로부터 탈환, 반청 근거지로 삼음(동녕왕국). 청 강희제가 정씨 왕국을 정복(1683)하고 대만부 설치, 복건성 예속. 청일전쟁 후 시모노세키 조약으로 일본에 할양(1895~1945). 1949년 국공내전 후 중화민국 정부가 이전. 현재 중국·대만 양안 관계의 초점.">
+<path d="M 638,432 Q 632,450 638,472 Q 648,476 653,458 Q 655,442 650,432 Q 644,428 638,432 Z" fill="#f5efe0" stroke="#8a7550" stroke-width="1"/>
+<text x="662" y="455" font-size="10" fill="#7a5a30" font-style="italic" stroke="#fff" stroke-width="2.5" paint-order="stroke" font-weight="700">대만</text>
+</g>
+<path id="cn-dynasty" d="" fill="none" stroke="none" opacity="0.42" pointer-events="none"/>
+<g id="cn-terrain" class="cn-layer" data-layer="terrain"></g>
+<g id="cn-rivers" class="cn-layer" data-layer="rivers"></g>
+<g id="cn-wall" class="cn-layer" data-layer="wall"></g>
+<g id="cn-mountains" class="cn-layer" data-layer="mountains"></g>
+<g id="cn-forts" class="cn-layer" data-layer="forts"></g>
+<g id="cn-cities" class="cn-layer" data-layer="cities"></g>
+</g>
+</svg>
+<div class="cn-zoom"><button id="cn-in" aria-label="확대">+</button><button id="cn-out" aria-label="축소">−</button></div>
+<div class="cn-panel" id="cn-panel" role="dialog" aria-labelledby="cn-p-name">
+<button class="close" id="cn-close" aria-label="닫기">×</button>
+<h3 id="cn-p-name">항목을 클릭하세요</h3>
+<div class="han" id="cn-p-han"></div>
+<div id="cn-p-tags"></div>
+<div class="desc" id="cn-p-desc">해안선을 실제 지리에 가깝게 다듬었습니다. 랴오둥·산둥 반도, 발해만 만입, 양쯔 삼각주, 히말라야 남쪽 곡선, 신장 서북 돌출, 그리고 하이난도·대만이 별개의 섬으로 표시됩니다.</div>
+</div>
+<div class="cn-hint">탭: 상세 · 드래그: 이동 · 핀치·+/−: 확대·축소</div>
+</div>
+
+<div class="cn-dyn-info" id="cn-dyn-info"></div>
 </div>
 
 <script>
 (function(){
-  const NS='http://www.w3.org/2000/svg';
-  function el(tag,attrs){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);return e;}
-  function txt(x,y,s,opts){
-    const t=el('text',{x,y,'font-size':opts.size||11,'font-weight':opts.weight||600,fill:opts.color||'#333',stroke:'#fff','stroke-width':opts['stroke-width']||2.8,'paint-order':'stroke'});
-    if(opts.italic)t.setAttribute('font-style','italic');
-    if(opts.anchor)t.setAttribute('text-anchor',opts.anchor);
-    t.textContent=s;return t;
+const NS='http://www.w3.org/2000/svg';
+const isMobile=matchMedia('(max-width:768px)').matches;
+const LABEL_BOOST=isMobile?1.35:1;  // 모바일에서 라벨 크기 35% 증가
+function el(tag,attrs){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);return e;}
+function txt(x,y,s,opts){
+  const size=(opts.size||11)*LABEL_BOOST;
+  const t=el('text',{x,y,'font-size':size.toFixed(1),'font-weight':opts.weight||600,fill:opts.color||'#333',stroke:'#fff','stroke-width':opts['stroke-width']||2.8,'paint-order':'stroke'});
+  if(opts.italic)t.setAttribute('font-style','italic');
+  if(opts.anchor)t.setAttribute('text-anchor',opts.anchor);
+  t.textContent=s;return t;
+}
+function group(d,tier){
+  const g=el('g',{class:'cn-item'});
+  g.dataset.name=d.n;g.dataset.han=d.h||'';g.dataset.era=d.e||'';g.dataset.desc=d.d||'';g.dataset.type=d.t||'';g.dataset.tier=tier||d.tier||2;
+  return g;
+}
+
+const SEAS=[
+{n:'황해',h:'黃海',e:'한반도-중국 해로',d:"한반도와 중국 산동·강소 사이의 반폐쇄해. 평균 수심 44m로 얕음. 백제·신라·발해가 이 바다를 건너 당·송과 왕래. 원 세조의 두 차례 일본 원정(1274·1281) 출발점. 명·청대 조선 사행 항로. 청일전쟁 황해해전(1894)에서 북양함대 궤멸.",rx:648,ry:290,rw:105,rh:100,lx:695,ly:340,ls:12,tier:2},
+{n:'발해',h:'渤海',e:'화북-요동 만',d:"화북·요동·산동에 둘러싸인 반폐쇄만. 진 시황·한 무제가 방사(方士)를 시켜 봉래·방장·영주 삼신산 불사약을 구하게 한 신화의 바다. 원·명·청대 대운하와 연결된 조운의 해로. 발해국(698~926)의 이름도 여기서 유래.",rx:585,ry:252,rw:52,rh:32,lx:610,ly:272,ls:10,tier:2},
+{n:'동중국해',h:'東海',e:'중국-일본-류큐',d:"중국·한반도 남부·류큐·대만 사이 해역. 감진 화상이 6차 시도 끝에 여기를 건너 일본으로(753). 명대 왜구 활동의 무대. 정화 원정대의 첫 출발지. 현재 중일 조어도(센카쿠) 영유권 분쟁 수역.",rx:660,ry:390,rw:130,rh:70,lx:700,ly:420,ls:11,tier:2},
+{n:'남중국해',h:'南海',e:'해상 실크로드',d:"중국 남부·베트남·필리핀·인도네시아 사이. 광주·천주·명주에서 출발한 상선이 향료·향목·상아를 실어온 해상 실크로드의 핵심. 명대 정화 원정의 주요 항로 — 인도양·아프리카 동안까지. 현재 9단선을 둘러싼 다국 영유권 분쟁.",rx:400,ry:520,rw:250,rh:38,lx:550,ly:540,ls:11,tier:2}
+];
+const seasG=document.getElementById('cn-seas');
+SEAS.forEach(s=>{
+  const g=group(s,s.tier);
+  g.appendChild(el('rect',{x:s.rx,y:s.ry,width:s.rw,height:s.rh,fill:'rgba(0,0,0,0.001)','pointer-events':'all'}));
+  g.appendChild(txt(s.lx,s.ly,s.n,{size:s.ls,color:'#3a6b85',italic:true,weight:700,'stroke-width':2.5}));
+  seasG.appendChild(g);
+});
+
+const TERRAINS=[
+{n:'청장고원',h:'靑藏高原',e:'평균 해발 4,000m+',d:"'세계의 지붕'. 250만 km²로 세계 최대·최고 고원. 황하·장강·메콩·인더스·갠지스 6대 강 발원지. 토번(吐蕃, 7~9세기) 근거지 — 당과 대등하게 겨루며 문성공주 하가. 원·청대 편입.",p:'M 100,235 Q 88,300 128,342 Q 180,362 240,342 Q 282,320 275,268 Q 258,218 198,213 Q 138,208 100,235 Z',fill:'#e8dcc0',stroke:'#b8a075',lx:180,ly:290,lc:'#7a6a3a',ls:12},
+{n:'황토고원',h:'黃土高原',e:'화하 문명의 요람',d:"바람에 쌓인 황토 100~300m 두께. 부드럽고 비옥해 초기 농경에 유리. 반파·앙소 문화, 주·진의 발상지. 요동(窯洞, 굴집) 주거. 황하 황토의 공급지.",p:'M 320,190 Q 300,220 315,258 Q 350,278 395,262 Q 420,232 405,198 Q 380,175 340,180 Q 325,183 320,190 Z',fill:'#efdcae',stroke:'#c9a24a',lx:355,ly:230,lc:'#8a5f1a',ls:12},
+{n:'화북평원',h:'華北平原',e:'30만 km²',d:"황하·회하·해하가 만든 대충적평원. 밀·조·목화 주산지. 인구 밀집. 낙양·개봉·업성·은허 등 주요 도읍이 모두 여기 위치. 황하 범람이 잦은 재해지.",p:'M 435,232 Q 425,285 460,320 Q 510,335 555,318 Q 590,298 585,258 Q 560,222 510,218 Q 465,220 435,232 Z',fill:'#e8ecd0',stroke:'#a3b579',lx:510,ly:278,lc:'#5a7a2a',ls:11},
+{n:'강남',h:'江南',e:'남송 이후 경제 중심',d:"장강 하류 삼각주와 태호 유역. 벼 이모작, 비단·차·자기 주산지. 남송 이후 경제·문화 중심이 화북에서 여기로 이동. '소호숙 천하족(蘇湖熟 天下足)'.",p:'M 500,362 Q 490,408 528,428 Q 582,438 618,418 Q 620,395 610,362 Q 572,346 532,352 Q 505,355 500,362 Z',fill:'#dcead0',stroke:'#8fa668',lx:560,ly:393,lc:'#5a7a2a',ls:11},
+{n:'타클라마칸 사막',h:'塔克拉瑪干沙漠',e:'33만 km²',d:"타림분지 중앙. 위구르어로 '들어가면 나오지 못한다'. 세계 2위 이동사막. 실크로드는 남·북연을 우회. 오아시스 국가(누란·소륵·구자) 번영.",p:'M 128,178 Q 112,215 148,235 Q 200,235 240,213 Q 250,188 220,168 Q 178,158 148,166 Q 133,170 128,178 Z',fill:'#f0e4c4',stroke:'#b8a06a',lx:185,ly:205,lc:'#8a6a30',ls:10},
+{n:'고비 사막',h:'戈壁沙漠',e:'유목민의 무대',d:"몽골고원의 반건조 지대. 흉노·선비·돌궐·회흘·거란·몽골의 활동 무대. 한 무제가 위청·곽거병을 파견해 흉노 정벌. 명대에 만리장성으로 방어.",p:'M 300,122 Q 285,142 312,158 Q 372,166 432,152 Q 472,142 460,122 Q 420,108 370,112 Q 320,112 300,122 Z',fill:'#f0e4c4',stroke:'#b8a06a',lx:380,ly:138,lc:'#8a6a30',ls:10},
+{n:'사천분지',h:'四川盆地',e:"'천부지국'",d:"진령·대파산·운귀고원에 둘러싸인 26만 km² 분지. BC 3세기 이빙 부자의 도강언 관개로 옥토. 진이 통일 자본을 마련. 촉한·전촉·후촉의 근거지.",p:'M 265,340 Q 253,380 280,405 Q 320,415 350,395 Q 365,360 340,340 Q 300,330 275,335 Q 268,338 265,340 Z',fill:'#e0dcc0',stroke:'#a89670',lx:305,ly:378,lc:'#7a6a45',ls:10},
+{n:'운귀고원',h:'雲貴高原',e:'다민족 지대',d:"중국 남서부. 해발 1,000~2,000m. 카르스트 지형. 남조·대리국이 자립. 백·이·묘·태족 등 25개 소수민족. 원 쿠빌라이가 정복하여 편입.",p:'M 260,385 Q 250,420 285,442 Q 320,450 345,432 Q 360,405 335,388 Q 300,378 275,382 Q 262,383 260,385 Z',fill:'#e8dcc0',stroke:'#b8a075',lx:300,ly:422,lc:'#7a6a45',ls:10},
+{n:'동북평원',h:'東北平原',e:'35만 km² · 만주',d:"송화강·요하 유역. 검은 흑토로 곡물 생산량 최고. 고조선·부여·고구려·발해가 흥망. 이후 거란(요)·여진(금)·만주족(청)의 발상지.",p:'M 570,140 Q 555,175 585,200 Q 625,210 645,185 Q 660,155 635,135 Q 600,125 578,130 Q 572,133 570,140 Z',fill:'#e0e8d0',stroke:'#8fa668',lx:600,ly:170,lc:'#5a7a2a',ls:10}
+];
+const terrainG=document.getElementById('cn-terrain');
+TERRAINS.forEach(t=>{
+  const g=group(t,1);
+  g.appendChild(el('path',{d:t.p,fill:t.fill,stroke:t.stroke,'stroke-width':0.8,opacity:0.7}));
+  g.appendChild(txt(t.lx,t.ly,t.n,{size:t.ls,color:t.lc,italic:true,weight:700,'stroke-width':3}));
+  terrainG.appendChild(g);
+});
+
+const RIVERS=[
+{n:'대운하',h:'京杭大運河',e:'수 양제 · 605~610',d:"북경~항주 1,794km. 세계 최장 인공수로. 수 양제가 남북 물자 유통을 위해 완성. 원·명·청 대에 정비. 강남 곡물·비단·차를 화북으로 수송한 대동맥.",paths:[{d:'M 555,210 Q 545,260 540,290 Q 540,320 542,340 Q 555,370 590,388',stroke:'#7fb3d4',width:4,dash:'3 2'}],labels:[{x:0,y:0,rot:78,tx:550,ty:300,size:10,color:'#4a8ea8',weight:700,'stroke-width':2.5}],tier:2},
+{n:'황하',h:'黃河',e:'5,464km · 4대 강',d:"중국 제2의 강. 청장고원→발해. '几'자로 오르도스 사막을 감쌈. 황토를 대량 운반해 물이 누렇게 됨. 화하 문명의 어머니이자 '중국의 슬픔'.",paths:[{d:'M 190,268 Q 240,248 290,253 Q 330,238 350,202 Q 385,188 420,202 Q 452,222 462,252 Q 472,238 492,242 Q 522,253 558,242 Q 582,238 600,238',stroke:'#d4a95a',width:5,linecap:'round'}],labels:[{x:250,y:243,size:13,color:'#a68030',weight:800,'stroke-width':3,tier:1},{x:500,y:235,size:11,color:'#a68030',weight:700,'stroke-width':3,tier:2}],tier:1},
+{n:'위수',h:'渭水',e:'황하 최대 지류',d:"감숙 발원, 섬서 관통, 황하 합류. 위수 분지가 '관중 평야' — 주의 풍호, 진의 함양, 한·수·당의 장안이 모두 여기.",paths:[{d:'M 300,290 Q 340,278 380,268 Q 405,262 420,258',stroke:'#d4a95a',width:3}],labels:[{x:340,y:298,size:10,color:'#a68030',weight:600,'stroke-width':2.5,tier:3}],tier:3},
+{n:'회하',h:'淮河',e:'남북 경계 · 1,000km',d:"하남 발원, 홍택호로. 진령-회하선은 중국 남·북의 지리·기후·문화 경계. '귤이 회수를 건너면 탱자가 된다'. 남송·금의 국경선.",paths:[{d:'M 445,318 Q 490,323 540,328 Q 575,323 610,320',stroke:'#7ba8c9',width:3.5}],labels:[{x:500,y:313,size:11,color:'#3a6a95',weight:700,'stroke-width':3,tier:2}],tier:2},
+{n:'장강 (양자강)',h:'長江 · 揚子江',e:'6,300km · 4대 강',d:"아시아 최장, 세계 3위. 청장고원→상해. 삼국지 적벽대전, 남조 방어선, 태평천국·무창봉기의 무대. 삼협댐(2003).",paths:[{d:'M 155,332 Q 210,342 265,352 Q 315,348 360,368 Q 410,392 465,392 Q 515,402 555,392 Q 595,392 620,378',stroke:'#5a8fb8',width:5,linecap:'round'}],labels:[{x:270,y:336,size:13,color:'#3a6a95',weight:800,'stroke-width':3,tier:1}],tier:1},
+{n:'한수 (한강)',h:'漢水',e:'장강 최장 지류',d:"섬서 남부→무한에서 장강 합류. 유방이 여기서 '한왕'으로 즉위, 국호 '한(漢)'의 어원. → 한족·한자의 어원.",paths:[{d:'M 410,300 Q 430,340 450,370 Q 460,380 465,388',stroke:'#7ba8c9',width:3}],labels:[{x:418,y:352,size:10,color:'#3a6a95',weight:600,'stroke-width':2.5,tier:3}],tier:3},
+{n:'상강',h:'湘江',e:'장강 지류 · 호남',d:"광서 발원, 호남 관통, 동정호로. 초 문화권으로 굴원 「이소」의 무대. 마왕퇴 한묘가 유역. 마오쩌둥 「심원춘·장사」의 배경.",paths:[{d:'M 445,455 Q 448,430 452,410 Q 458,395 463,388',stroke:'#7ba8c9',width:3}],labels:[{x:430,y:440,size:10,color:'#3a6a95',weight:600,'stroke-width':2.5,tier:3}],tier:3},
+{n:'주강',h:'珠江',e:'2,214km · 4대 강',d:"서강·북강·동강 3개 지류가 광주 부근 합류. 남중국 최대. 광저우 삼각주는 명·청 해상 무역 관문, 현재 개혁개방의 심장.",paths:[{d:'M 385,455 Q 435,455 490,460 Q 540,462 570,450',stroke:'#5a8fb8',width:4}],labels:[{x:463,y:475,size:11,color:'#3a6a95',weight:700,'stroke-width':3,tier:2}],tier:2},
+{n:'송화강',h:'松花江',e:'흑룡강 지류',d:"장백산(백두산) 천지 발원→흑룡강. 만주족·조선족의 무대. 부여·발해·여진·후금 활동 지역. 하얼빈·길림·장춘 유역.",paths:[{d:'M 590,148 Q 615,155 635,168 Q 645,172 655,170',stroke:'#7ba8c9',width:3.5}],labels:[{x:615,y:155,size:10,color:'#3a6a95',weight:600,'stroke-width':2.5,tier:3}],tier:3},
+{n:'요하',h:'遼河',e:'1,394km · 요동',d:"내몽골 발원, 요동만으로. 요동·요서를 가르는 강. 고조선·고구려·발해·거란(요) 활동 무대. 요하문명(홍산문화).",paths:[{d:'M 580,150 Q 595,180 605,205 Q 610,225 615,238',stroke:'#7ba8c9',width:3}],labels:[{x:600,y:200,size:10,color:'#3a6a95',weight:600,'stroke-width':2.5,tier:3}],tier:3},
+{n:'타림강',h:'塔里木河',e:'중국 최장 내륙하 · 2,179km',d:"파미르 발원, 타림분지 관통, 로프노르로 유입(현재 대부분 소실). 실크로드 오아시스의 젖줄.",paths:[{d:'M 105,222 Q 135,215 165,213 Q 195,215 225,215',stroke:'#7ba8c9',width:3}],labels:[{x:130,y:207,size:10,color:'#3a6a95',weight:600,'stroke-width':2.5,tier:3}],tier:3}
+];
+const riversG=document.getElementById('cn-rivers');
+RIVERS.forEach(r=>{
+  const g=group(r,r.tier);
+  r.paths.forEach(p=>{
+    const pathAttrs={d:p.d,stroke:p.stroke,'stroke-width':p.width,fill:'none'};
+    if(p.dash)pathAttrs['stroke-dasharray']=p.dash;
+    if(p.linecap)pathAttrs['stroke-linecap']=p.linecap;
+    g.appendChild(el('path',pathAttrs));
+  });
+  r.labels.forEach(l=>{
+    const t=txt(l.x,l.y,r.n,l);
+    if(l.tier)t.dataset.tier=l.tier;
+    if(l.rot){t.setAttribute('transform',`translate(${l.tx},${l.ty}) rotate(${l.rot})`);t.setAttribute('x',0);t.setAttribute('y',0);}
+    g.appendChild(t);
+  });
+  riversG.appendChild(g);
+});
+
+const WALLS=[
+{n:'만리장성',h:'萬里長城',e:'진~명 · 21,196km',d:"전국시대 각국 성벽을 진 시황이 통합. 한 무제가 서쪽으로 확장(옥문·양관). 명대에 벽돌로 재축(14~17세기). 산해관(동)~가욕관(서). 북방 유목민 방어.",p:'M 218,168 Q 274,152 340,155 Q 410,148 470,152 Q 530,150 590,172',stroke:'#8a6a4a',width:5,dash:'8 3',lx:380,ly:140,ls:12,lc:'#5a3f24',lt:'━ 萬里長城 만리장성 ━',anchor:'middle',tier:1},
+{n:'실크로드',h:'絲綢之路 · Silk Road',e:'한 무제 개통 · BC 2세기',d:"장안·낙양→하서회랑→타림분지→파미르→중앙아시아·페르시아·로마. BC 138년 장건의 서역 사행이 시초. 한·당대 최전성. 비단·자기·차 ↔ 향신료·유리·말. 불교·경교·마니교·이슬람 전래.",p:'M 100,220 Q 150,215 190,205 Q 230,215 265,222 Q 300,235 340,245 Q 370,253 390,260',stroke:'#c07535',width:3.5,dash:'4 3',lx:215,ly:243,ls:11,lc:'#8a4a10',lt:'絲綢之路 실크로드',italic:true,tier:2}
+];
+const wallG=document.getElementById('cn-wall');
+WALLS.forEach(w=>{
+  const g=group(w,w.tier);
+  g.appendChild(el('path',{d:w.p,stroke:w.stroke,'stroke-width':w.width,fill:'none','stroke-dasharray':w.dash}));
+  g.appendChild(txt(w.lx,w.ly,w.lt,{size:w.ls,color:w.lc,weight:w.tier===1?800:700,italic:w.italic,anchor:w.anchor,'stroke-width':3}));
+  wallG.appendChild(g);
+});
+
+const ITEMS=[
+{t:'cap',tier:1,x:388,y:260,n:'장안·함양',h:'長安·咸陽 (現 西安)',e:'주·진·한·수·당',d:"황토고원 남단 위수 분지의 관중 평야. 주의 풍호에서 시작해 진의 함양, 한·수·당의 장안으로 이어진 3천 년 도읍. 당대 인구 100만+의 세계 최대 국제도시로 실크로드 동쪽 종점.",tx:10,ty:4,ta:'start'},
+{t:'cap',tier:1,x:454,y:268,n:'낙양',h:'洛陽',e:'9왕조 도읍',d:"황하 남안, 이수·낙수 합류점. 주 성왕이 성주로 삼은 이래 후한·조위·서진·북위·수·당·후량·후당 9왕조 도읍. 후한 명제 때 백마사가 세워져 중국 불교의 시발점. 용문석굴 소재.",tx:10,ty:4,ta:'start'},
+{t:'cap',tier:1,x:500,y:285,n:'개봉',h:'開封 · 東京',e:'북송',d:"황하 남안, 대운하 접점. 오대와 북송의 수도. 「청명상하도」의 세계 최대 도시(100만+). 1127년 정강의 변으로 여진 금나라에 함락.",tx:10,ty:4,ta:'start'},
+{t:'cap',tier:1,x:555,y:205,n:'북경',h:'北京 · 大都 · 燕京',e:'요·금·원·명·청·현대',d:"화북평원 북단, 연산산맥 남록. 요의 남경, 금의 중도, 원의 대도로 성장. 명 영락제가 남경에서 천도(1421)하며 자금성 축조. 청·중화민국·현재의 수도.",tx:10,ty:-4,ta:'start'},
+{t:'cap',tier:1,x:562,y:340,n:'남경',h:'南京 · 建康',e:'육조·명 초·중화민국',d:"장강 하류 남안. 삼국 오 손권이 건업으로. 이후 육조·남당·명 태조·태평천국·중화민국의 수도. 1937년 남경대학살.",tx:10,ty:4,ta:'start'},
+{t:'cap',tier:1,x:597,y:386,n:'항주',h:'杭州 · 臨安',e:'오월·남송',d:"전당강 하구, 서호의 도시. 오월국·남송의 도읍(1138~1276). 대운하 남단. 마르코 폴로가 킨사이로 극찬.",tx:10,ty:4,ta:'start'},
+{t:'cap',tier:1,x:305,y:340,n:'성도',h:'成都',e:'촉한·전촉·후촉',d:"사천분지 서부, 민강 유역. 이빙 부자의 도강언 관개로 옥토가 되어 '천부지국'. 촉한(유비·제갈량)의 도읍. 두보 초당, 무후사.",tx:-10,ty:4,ta:'end'},
+{t:'cap',tier:1,x:465,y:190,n:'평성·대동',h:'平城 · 大同',e:'북위 (398~494)',d:"산서 북부. 북위 도무제~효문제 수도. 선비족 한화의 초기 무대. 부근 무주산에 운강석굴.",tx:8,ty:-8,ta:'start'},
+{t:'cap',tier:1,x:513,y:250,n:'업성',h:'鄴 · 鄴城',e:'조위·후조·전연·동위·북제',d:"황하 북안. 조조가 하북 평정 후 위의 정치 중심. 삼대(동작대·금호대·빙정대) 축조. 이후 5왕조 도읍.",tx:8,ty:-4,ta:'start'},
+{t:'cap',tier:1,x:605,y:170,n:'심양·성경',h:'瀋陽 · 盛京 · 奉天',e:'후금(청) 초기',d:"요녕성. 누르하치가 도읍으로 삼고, 홍타이지가 성경으로 개칭. 순치제 북경 천도 후 배도로 유지. 청조 발상지.",tx:8,ty:0,ta:'start'},
+{t:'city',tier:2,x:490,y:238,n:'은허',h:'殷墟 · 安陽',e:'상 후기',d:"상나라 반경이 천도한 이래 273년간 도읍. 1899년 왕의영이 갑골 발견으로 상 왕조 실존 확인. 사모무정, 갑골문 15만 편 이상 출토.",tx:8,ty:-4,ta:'start'},
+{t:'city',tier:2,x:590,y:365,n:'소주',h:'蘇州',e:'춘추 오·명·청',d:"춘추 오의 수도. 대운하가 관통. 태호 동안. 원림의 도시로 졸정원·유원 등 9개 정원이 세계문화유산.",tx:-8,ty:-3,ta:'end'},
+{t:'city',tier:2,x:355,y:358,n:'중경',h:'重慶',e:'파국·근현대',d:"장강·가릉강 합류점. 파의 옛 땅. 남송이 몽골에 40년 저항한 조어성 인근. 항일전쟁기 국민정부 임시 수도.",tx:10,ty:4,ta:'start'},
+{t:'city',tier:2,x:465,y:383,n:'형주·무한',h:'荊州 · 武漢',e:'초·삼국·근대',d:"장강 중류. 초의 정치·문화 중심. 삼국지 형주 쟁탈전. 무한은 1911년 무창봉기(신해혁명) 발발지.",tx:10,ty:-4,ta:'start'},
+{t:'city',tier:2,x:495,y:458,n:'광주',h:'廣州 · 番禺',e:'남월·당~현대',d:"주강 하구. 남월국의 도읍. 당·송대 국제 무역항. 청대 광주 13행. 아편전쟁 발발지.",tx:8,ty:4,ta:'start'},
+{t:'city',tier:2,x:443,y:218,n:'태원',h:'太原',e:'춘추 진·당 발상지',d:"분수 유역. 수말 이연·이세민이 여기서 거병(617)하여 당 건국. 오대 후한·북한의 수도.",tx:10,ty:-3,ta:'start'},
+{t:'city',tier:2,x:322,y:242,n:'란주',h:'蘭州 · 金城',e:'한~현대',d:"감숙성. 황하 상류를 걸치는 유일한 대도시. 하서회랑의 관문. 한 무제가 서역 경략을 위해 금성군 설치.",tx:-8,ty:4,ta:'end'},
+{t:'city',tier:2,x:450,y:412,n:'장사',h:'長沙',e:'초·근현대',d:"상강 유역, 호남 성도. 초 문화권. 1972년 마왕퇴 한묘 발굴 — 미이라 신추 부인. 마오쩌둥의 청소년기 활동지.",tx:10,ty:4,ta:'start'},
+{t:'city',tier:2,x:525,y:262,n:'곡부',h:'曲阜',e:'노(魯)·주(周) 봉국',d:"산동성. 주공 단의 봉국 노의 수도. 공자·맹자의 고향. 공묘·공부·공림 '삼공'이 세계문화유산.",tx:8,ty:-3,ta:'start'},
+{t:'city',tier:2,x:540,y:322,n:'양주',h:'揚州',e:'수·당·명·청',d:"장강·대운하 교차점. 수 양제가 강도로 순행, 여기서 시해됨. 당대 최대 상업도시. 감진 화상이 일본 도항 성공.",tx:8,ty:-3,ta:'start'},
+{t:'city',tier:2,x:580,y:435,n:'천주',h:'泉州 · 刺桐',e:'송·원 해상 실크로드',d:"복건 해안. 송·원대 세계 최대급 항구 '자이툰'. 마르코 폴로·이븐 바투타 방문. 이슬람·마니교·경교 공존.",tx:8,ty:4,ta:'start'},
+{t:'city',tier:2,x:293,y:397,n:'대리',h:'大理',e:'남조·대리국 (738~1253)',d:"운남 서부. 남조와 대리국의 수도로 500년간 독립. 백족의 근거지. 원 쿠빌라이가 1253년 정복.",tx:-8,ty:4,ta:'end'},
+{t:'city',tier:2,x:183,y:315,n:'라싸',h:'拉薩 · 邏些',e:'토번 · 티베트',d:"청장고원 중심, 해발 3,650m. 7세기 토번 송찬간포의 수도. 당 문성공주가 왕비. 원·청대 편입. 달라이 라마의 포탈라궁.",tx:8,ty:4,ta:'start'},
+{t:'city',tier:2,x:620,y:368,n:'상해',h:'上海 · 滬',e:'근현대',d:"장강 하구. 1842년 남경조약으로 개항하며 폭발적 성장. 조계지·와이탄. 중국 공산당 제1차 대회(1921) 개최지.",tx:8,ty:4,ta:'start'},
+{t:'silk',tier:3,x:245,y:213,n:'돈황',h:'敦煌',e:'한~원',d:"감숙 서단. 한 무제 설치 하서사군의 하나. 실크로드 요충. 막고굴 735개 석굴·벽화가 세계문화유산. 왕원록이 발견한 장경동 문서 5만 점.",tx:8,ty:4,ta:'start'},
+{t:'silk',tier:3,x:198,y:195,n:'하미',h:'哈密',e:'한~청',d:"타림분지 동단 오아시스. 서역 진입의 관문. 한 반초가 서역 경략. 청 준가르 정벌 과정에서 활용.",tx:-8,ty:-3,ta:'end'},
+{t:'silk',tier:3,x:145,y:172,n:'우루무치',h:'烏魯木齊',e:'청~현대',d:"천산 북록. 청 건륭제의 준가르 정벌(1755) 이후 개발. 실크로드 천산북로의 요충. 현 신강 위구르 자치구 성도.",tx:8,ty:-3,ta:'start'},
+{t:'silk',tier:3,x:100,y:220,n:'카슈가르',h:'喀什 · 疏勒',e:'한~현대',d:"타림분지 서단, 파미르 동쪽 관문. 실크로드 남·북 지선 합류점. 한대 소륵국, 당대 안서도호부. 이슬람 문화 중심.",tx:8,ty:4,ta:'start'},
+{t:'silk',tier:3,x:168,y:190,n:'투루판',h:'吐魯番',e:'한~원',d:"천산 남록 오아시스. 해수면보다 낮은 분지(-154m). 고창국, 안서도호부. 위구르족 초기 중심지. 카레즈, 포도 명산지.",tx:-6,ty:-3,ta:'end'},
+{t:'fort',tier:2,x:610,y:198,n:'산해관',h:'山海關',e:'명 · 만리장성 동단',d:"만리장성의 동쪽 끝. 명 홍무제 대장 서달이 축조(1381). '천하제일관' 편액. 1644년 오삼계가 청군을 이 관문 안으로 끌어들여 청조 입관과 명 멸망의 직접 계기.",tx:8,ty:-3,ta:'start'},
+{t:'fort',tier:2,x:540,y:198,n:'거용관',h:'居庸關',e:'북경 방어',d:"북경 서북 40km. 팔달령과 함께 북경 방어의 핵심. 원대 운대에 6종 문자로 새긴 불경. 명·청대 몽골 방어의 최전선.",tx:-8,ty:-3,ta:'end'},
+{t:'fort',tier:2,x:455,y:200,n:'안문관',h:'雁門關',e:'조·한~명',d:"산서 북부. 흉노·돌궐·거란·여진·몽골이 남하하던 통로. 조 무령왕이 방어. 한 무제 마읍 유인책의 발상지. 송대 양가장 무대.",tx:0,ty:-8,ta:'middle'},
+{t:'fort',tier:2,x:275,y:200,n:'가욕관',h:'嘉峪關',e:'명 · 만리장성 서단',d:"만리장성의 서쪽 끝. 명 홍무제 명령으로 축조(1372). '천하제일웅관' 편액.",tx:8,ty:-3,ta:'start'},
+{t:'fort',tier:2,x:230,y:207,n:'옥문관',h:'玉門關',e:'한 무제',d:"돈황 서북. 서역의 옥이 이 관문을 통해 들어와 이름. 실크로드 북로 관문. '봄바람은 옥문관을 넘지 못한다' — 왕지환의 시.",tx:-8,ty:-3,ta:'end'},
+{t:'fort',tier:2,x:235,y:225,n:'양관',h:'陽關',e:'한 무제',d:"돈황 서남. 옥문관과 짝. 실크로드 남로 관문. '서쪽 양관을 나서면 옛 친구가 없다' — 왕유 「위성곡」.",tx:-8,ty:4,ta:'end'},
+{t:'fort',tier:2,x:430,y:262,n:'함곡관',h:'函谷關',e:'전국~한',d:"황하 남안. 관중과 관동을 잇는 유일 통로. 노자가 여기서 도덕경을 남기고 서쪽으로. 진이 6국을 이 관문 뒤에서 지키며 통일.",tx:0,ty:-8,ta:'middle'},
+{t:'fort',tier:2,x:418,y:275,n:'동관',h:'潼關',e:'후한~명',d:"황하·위수·낙수 3강 합류점. 함곡관을 대체한 관중 관문. 안사의 난 때 가서한이 대패, 현종이 촉으로 파천.",tx:6,ty:6,ta:'start'},
+{t:'fort',tier:2,x:395,y:290,n:'무관',h:'武關',e:'전국~한',d:"장안 남쪽. 관중의 남쪽 관문. BC 207년 유방이 여기로 진입해 함양 무혈 입성 → 진 왕조 종결.",tx:-6,ty:5,ta:'end'},
+{t:'fort',tier:2,x:322,y:315,n:'검문관',h:'劍門關',e:'삼국~',d:"사천 북부. '촉으로 통하는 험로'의 관문. '한 사람이 관문을 지키면 만인이 뚫을 수 없다'. 이백 「촉도난」의 무대. 촉한 방어의 핵심.",tx:-8,ty:4,ta:'end'},
+{t:'fort',tier:2,x:378,y:353,n:'조어성',h:'釣魚城',e:'남송 vs 몽골',d:"중경 부근 합천. 남송이 몽골에 36년(1243~1279) 저항. 1259년 대칸 몽케가 여기서 전사 — 훌라구·바투가 회군하며 세계사의 방향을 바꿈. '신의 채찍이 부러진 곳'.",tx:8,ty:4,ta:'start'},
+{t:'fort',tier:2,x:475,y:370,n:'양양성',h:'襄陽城',e:'남송 vs 몽골',d:"한수 유역. 삼국지 형주 쟁탈의 핵심. 남송이 몽골에 6년(1268~1273) 저지. 여문환이 지킴. 함락 후 남송 붕괴.",tx:8,ty:-4,ta:'start'},
+{t:'mtn',tier:3,x:528,y:255,n:'태산',h:'泰山 (1,545m)',e:'오악의 으뜸',d:"산동. 오악 중 동악. 진 시황부터 청 강희·건륭까지 12명의 황제가 봉선 의식. 공자 '등태산이소천하'. 세계자연·문화 이중유산."},
+{t:'mtn',tier:3,x:413,y:245,n:'화산',h:'華山',e:'오악의 서악',d:"섬서 위남. 화강암 절벽 5개 봉우리로 '천하제일험'. 도교 성지."},
+{t:'mtn',tier:3,x:466,y:275,n:'숭산',h:'嵩山',e:'오악의 중악',d:"하남 등봉. 495년 창건된 소림사 소재 — 선종의 발상지이자 소림 무술의 요람."},
+{t:'mtn',tier:3,x:454,y:425,n:'형산',h:'衡山',e:'오악의 남악',d:"호남 형양. 남악대묘 등 사찰·도관 밀집. 남종선 회양선사가 활동."},
+{t:'mtn',tier:3,x:478,y:205,n:'항산',h:'恒山',e:'오악의 북악',d:"산서 대동 부근. 절벽에 매달아 지은 현공사(5세기 북위)로 유명."},
+{t:'mtn',tier:3,x:163,y:275,n:'곤륜산맥',h:'崑崙山脈',e:'청장고원 북연',d:"타림분지 남쪽. 평균 해발 5,500m. 신화상 서왕모의 거처. 옥의 대산지 — 화전옥이 상나라 이래 중국 옥기의 원료."},
+{t:'mtn',tier:3,x:135,y:170,n:'천산',h:'天山',e:'2,500km',d:"키르기스스탄까지 뻗은 대산맥. 타림·준가르 분지를 가름. 실크로드 천산북로·남로가 남·북 기슭을 통과."},
+{t:'mtn',tier:3,x:475,y:225,n:'태행산맥',h:'太行山脈',e:'400km',d:"화북평원과 황토고원을 남북으로 가름. 태행팔형 — 8개 협곡 통로가 전략적 요충. 항일전쟁기 팔로군 근거지."},
+{t:'mtn',tier:3,x:378,y:255,n:'진령',h:'秦嶺',e:'남북 지리 경계',d:"섬서 남부를 동서로 관통. 회하와 함께 '진령-회하선' — 중국 남·북의 결정적 경계선."},
+{t:'lake',tier:2,x:444,y:402,n:'동정호',h:'洞庭湖',e:'호남 · 2대 담수호',d:"상강·자강·원강·례강 유입, 장강과 연결. '팔백리 동정'. 범중엄 「악양루기」의 무대. 호북·호남의 이름이 이 호수에서 유래."},
+{t:'lake',tier:2,x:513,y:402,n:'파양호',h:'鄱陽湖',e:'강서 · 최대 담수호',d:"장강과 연결. 1363년 주원장이 진우량 함대를 격파한 파양호 대전 — 명 건국의 기틀."},
+{t:'lake',tier:2,x:585,y:355,n:'태호',h:'太湖',e:'강소·절강 · 3대 담수호',d:"강남의 심장부. 소주·무석·상주가 연안. 태호석이 정원 조경석으로 명성."}
+];
+const cities=document.getElementById('cn-cities'),mountains=document.getElementById('cn-mountains'),forts=document.getElementById('cn-forts');
+// 모바일에서 마커도 살짝 키움
+const M=isMobile?1.25:1;
+const styles={cap:{fill:'#b85450',r:6.5*M,tsize:12.5,tw:700,tc:'#3a1810'},city:{fill:'#d97e3a',r:4.8*M,tsize:11,tw:600,tc:'#5a3210'},silk:{fill:'#3a9080',r:4.5*M,tsize:11,tw:600,tc:'#0e5c4a'},fort:{fill:'#5a4a70',r:0,tsize:10.5,tw:700,tc:'#2a1e40'},mtn:{fill:'#7a6a45',r:0,tsize:10,tw:600,tc:'#4d3f22'},lake:{fill:'#7ba8c9',r:0,tsize:10,tw:600,tc:'#2a5f80'}};
+const SHAPE=isMobile?7.5:6;  // fort/mtn 도형 크기
+ITEMS.forEach(c=>{
+  const s=styles[c.t],g=group(c,c.tier);
+  if(c.t==='mtn')g.appendChild(el('path',{d:`M ${c.x-SHAPE-1},${c.y+5} L ${c.x},${c.y-SHAPE-1} L ${c.x+SHAPE+1},${c.y+5} Z`,fill:s.fill,stroke:'#fff','stroke-width':1}));
+  else if(c.t==='lake')g.appendChild(el('ellipse',{cx:c.x,cy:c.y,rx:10*M,ry:5*M,fill:s.fill,stroke:'#fff','stroke-width':1,opacity:0.85}));
+  else if(c.t==='fort')g.appendChild(el('path',{d:`M ${c.x},${c.y-SHAPE} L ${c.x+SHAPE},${c.y} L ${c.x},${c.y+SHAPE} L ${c.x-SHAPE},${c.y} Z`,fill:s.fill,stroke:'#fff','stroke-width':1.4,filter:'url(#cn-shadow)'}));
+  else g.appendChild(el('circle',{cx:c.x,cy:c.y,r:s.r,fill:s.fill,stroke:'#fff','stroke-width':1.7,filter:'url(#cn-shadow)'}));
+  g.appendChild(txt(c.x+(c.tx||8),c.y+(c.ty||4),c.n,{size:s.tsize,weight:s.tw,color:s.tc,anchor:c.ta,'stroke-width':2.8}));
+  if(c.t==='mtn'||c.t==='lake')mountains.appendChild(g);
+  else if(c.t==='fort')forts.appendChild(g);
+  else cities.appendChild(g);
+});
+
+const panel=document.getElementById('cn-panel'),pName=document.getElementById('cn-p-name'),pHan=document.getElementById('cn-p-han'),pTags=document.getElementById('cn-p-tags'),pDesc=document.getElementById('cn-p-desc');
+const typeLabel={cap:'도읍',city:'주요 도시',silk:'실크로드 관문',fort:'성·관문',mtn:'산·산맥',lake:'호수',river:'강',wall:'구조물',terrain:'지형',sea:'바다','':'지역'};
+function openPanel(el){
+  const d=el.dataset;
+  pName.textContent=d.name||'';pHan.textContent=d.han||'';
+  let ttype=d.type;
+  if(!ttype){const layer=el.closest('.cn-layer')?.dataset.layer;if(layer==='rivers')ttype='river';else if(layer==='wall')ttype='wall';else if(layer==='terrain')ttype='terrain';else if(layer==='seas')ttype='sea';}
+  pTags.innerHTML=`<span class="tag">${typeLabel[ttype]||''}</span>${d.era?`<span class="tag era">${d.era}</span>`:''}`;
+  pDesc.textContent=d.desc||'';panel.classList.add('show');
+  if(isMobile)panel.scrollTop=0;
+}
+document.getElementById('cn-viewport').addEventListener('click',e=>{if(justDragged){justDragged=false;return;}const it=e.target.closest('.cn-item');if(it){e.stopPropagation();openPanel(it);}});
+document.getElementById('cn-close').addEventListener('click',()=>panel.classList.remove('show'));
+
+// 모바일 하단 시트 스와이프 다운으로 닫기
+if(isMobile){
+  let sheetY0=0,sheetDy=0,sheetDragging=false;
+  panel.addEventListener('touchstart',e=>{if(panel.scrollTop>0)return;sheetY0=e.touches[0].clientY;sheetDragging=true;sheetDy=0;},{passive:true});
+  panel.addEventListener('touchmove',e=>{if(!sheetDragging)return;sheetDy=e.touches[0].clientY-sheetY0;if(sheetDy>0){panel.style.transform=`translateY(${sheetDy}px)`;}},{passive:true});
+  panel.addEventListener('touchend',()=>{if(!sheetDragging)return;sheetDragging=false;panel.style.transform='';if(sheetDy>80)panel.classList.remove('show');});
+}
+
+// 컨트롤 토글 (모바일)
+const toggle=document.getElementById('cn-toggle'),controls=document.getElementById('cn-controls');
+toggle.addEventListener('click',()=>{
+  const open=controls.classList.toggle('open');
+  toggle.classList.toggle('open',open);
+  toggle.textContent=open?'컨트롤 닫기':'컨트롤 열기';
+  toggle.setAttribute('aria-expanded',open);
+  // 토글에 화살표 아이콘 다시 붙이기 위해 pseudo 사용중이므로 텍스트만
+});
+
+const DYN={
+qin:{n:'秦 진',c:'#a89670',y:'BC 221 ~ 206 · 15년',d:'중국 최초의 통일 제국. 진 시황이 6국을 병합. 문자·도량형·화폐·수레 폭 통일. 만리장성 완성. 진도 건설. 분서갱유. 15년 만에 붕괴했으나 이후 2천 년 중국 왕조의 기본틀(황제·군현제·율령)을 남김.',p:'M 295,195 L 320,175 L 400,170 L 500,175 L 585,195 L 615,240 L 620,290 L 605,345 L 555,395 L 500,440 L 485,458 L 400,468 L 330,450 L 300,405 L 285,340 L 280,270 L 290,215 Z'},
+han:{n:'漢 한',c:'#b85450',y:'BC 202 ~ AD 220',d:'400여 년의 대제국. 유방이 항우를 격파하고 건국. 무제 대 흉노 정벌, 장건의 서역 사행(BC 138)으로 실크로드 개통, 하서사군 설치. 유교 국교화. 왕망의 신 이후 광무제가 후한 재건.',p:'M 240,215 L 275,190 L 340,170 L 450,165 L 555,170 L 605,185 L 625,210 L 630,260 L 620,315 L 600,365 L 555,410 L 500,455 L 485,465 L 400,472 L 330,455 L 295,410 L 275,355 L 265,300 L 258,255 L 245,225 Z'},
+tang:{n:'唐 당',c:'#d4a017',y:'618 ~ 907 · 290년',d:'세계 제국의 절정. 이연·이세민 태원 거병. 태종·현종 대 최대 판도. 장안 100만+의 국제도시. 이백·두보. 안사의 난(755) 이후 절도사 할거로 쇠락, 황소의 난·주전충으로 멸망.',p:'M 90,215 L 105,175 L 175,140 L 260,125 L 400,120 L 520,120 L 605,140 L 655,175 L 670,225 L 670,285 L 660,340 L 630,395 L 555,440 L 490,468 L 400,472 L 330,455 L 285,400 L 250,350 L 195,315 L 130,275 L 95,240 Z'},
+nsong:{n:'北宋 북송',c:'#4a8ea8',y:'960 ~ 1127 · 167년',d:'문치주의. 조광윤 개봉 도읍. 성리학 태동. 나침반·화약·활자 인쇄술. 개봉 100만. 요에 연운16주, 서하에 하서 상실. 1127년 정강의 변으로 금나라에 함락.',p:'M 300,270 L 335,240 L 400,225 L 475,220 L 530,232 L 555,255 L 570,290 L 590,320 L 610,365 L 605,405 L 555,430 L 495,460 L 400,470 L 335,450 L 300,405 L 285,345 L 285,295 Z'},
+ssong:{n:'南宋 남송',c:'#7a5aa8',y:'1127 ~ 1279 · 152년',d:'회하 이남으로 축소. 임안 도읍. 진령-회하선이 금과의 국경. 성리학 완성(주희). 몽골에 40년 저항(양양·조어). 1279년 애산 해전에서 육수부·문천상 순사.',p:'M 260,325 L 305,290 L 400,290 L 495,315 L 555,330 L 605,375 L 605,410 L 555,440 L 495,465 L 400,470 L 335,450 L 295,410 L 270,365 Z'},
+yuan:{n:'元 원',c:'#3a5a80',y:'1271 ~ 1368 · 97년',d:'최초의 이민족 통일 왕조. 쿠빌라이 대도(북경) 천도. 팍스 몽골리카. 마르코 폴로 왕래. 4계급제. 파스파 문자. 홍건적·주원장 봉기로 1368년 붕괴.',p:'M 75,190 L 130,140 L 220,110 L 380,100 L 500,100 L 590,115 L 650,145 L 685,190 L 700,255 L 700,320 L 675,385 L 625,425 L 555,458 L 495,478 L 400,485 L 330,475 L 245,470 L 155,435 L 95,360 L 60,265 Z'},
+ming:{n:'明 명',c:'#d97e3a',y:'1368 ~ 1644 · 276년',d:'한족 부흥 왕조. 주원장 남경 건국. 영락제 북경 천도(1421) 자금성. 정화 7차 원정(1405~1433). 만리장성 최종 완성. 이자성 난과 오삼계 청군 유도로 1644년 붕괴.',p:'M 200,180 L 275,150 L 400,140 L 500,140 L 595,160 L 640,190 L 650,230 L 660,290 L 650,345 L 620,395 L 555,435 L 495,462 L 400,470 L 330,450 L 285,395 L 270,335 L 275,270 L 265,215 Z'},
+qing:{n:'淸 청',c:'#4a7a4a',y:'1644 ~ 1912 · 268년',d:'만주족 왕조. 강희·옹정·건륭 3대 성세 — 강역 사상 최대. 대만(1683)·티베트(1720)·신강(1759). 아편전쟁(1840)으로 반식민지화. 태평천국·의화단·신해혁명으로 붕괴, 부의 퇴위(1912).',p:'M 85,190 L 145,135 L 250,110 L 400,105 L 550,110 L 605,125 L 655,160 L 685,215 L 700,275 L 685,340 L 665,385 L 625,425 L 555,460 L 495,478 L 400,483 L 330,475 L 255,468 L 200,445 L 135,385 L 95,320 L 60,240 Z'}
+};
+const dynPath=document.getElementById('cn-dynasty'),dynInfo=document.getElementById('cn-dyn-info');
+document.querySelectorAll('.cn-dyn-bar button').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.cn-dyn-bar button').forEach(x=>{x.style.background='';x.style.color='';x.style.borderColor='';});
+    const k=b.dataset.dyn;
+    if(k==='none'){dynPath.setAttribute('d','');dynPath.setAttribute('fill','none');dynPath.setAttribute('stroke','none');dynInfo.classList.remove('show');dynInfo.innerHTML='';b.style.background='#3a3226';b.style.color='#f5efe0';}
+    else{const D=DYN[k];dynPath.setAttribute('d',D.p);dynPath.setAttribute('fill',D.c);dynPath.setAttribute('stroke',D.c);dynPath.setAttribute('stroke-width',2);dynPath.setAttribute('opacity',0.42);b.style.background=D.c;b.style.color='#fff';b.style.borderColor=D.c;dynInfo.innerHTML=`<b>${D.n}</b><span class="yr">${D.y}</span><div style="margin-top:6px">${D.d}</div>`;dynInfo.classList.add('show');}
+  });
+});
+document.querySelectorAll('.cn-toolbar button[data-layer]').forEach(b=>{
+  b.addEventListener('click',()=>{b.classList.toggle('active');const key=b.dataset.layer;document.querySelectorAll(`.cn-layer[data-layer="${key}"]`).forEach(g=>{g.style.display=b.classList.contains('active')?'':'none';});});
+});
+const wrap=document.getElementById('cn-wrap');
+document.querySelectorAll('.cn-mode-bar button').forEach(b=>{
+  b.addEventListener('click',()=>{document.querySelectorAll('.cn-mode-bar button').forEach(x=>x.classList.remove('active'));b.classList.add('active');wrap.classList.remove('mode-core','mode-std','mode-detail');wrap.classList.add('mode-'+b.dataset.mode);});
+});
+
+// 모바일 초기 라벨 밀도: 핵심으로 시작해 화면 깔끔하게
+if(isMobile){
+  document.querySelectorAll('.cn-mode-bar button').forEach(x=>x.classList.remove('active'));
+  const coreBtn=document.querySelector('.cn-mode-bar button[data-mode="core"]');
+  if(coreBtn){coreBtn.classList.add('active');wrap.classList.remove('mode-detail');wrap.classList.add('mode-core');}
+}
+
+const svg=document.getElementById('cn-svg');
+let vx=0,vy=0,vw=800,vh=560;
+function setView(){svg.setAttribute('viewBox',`${vx} ${vy} ${vw} ${vh}`);}
+function zoomAt(cx,cy,k){vw*=k;vh*=k;vx=cx-vw/2;vy=cy-vh/2;setView();}
+document.getElementById('cn-in').addEventListener('click',()=>zoomAt(vx+vw/2,vy+vh/2,0.7));
+document.getElementById('cn-out').addEventListener('click',()=>{const nvw=Math.min(800,vw/0.7),nvh=Math.min(560,vh/0.7);const cx=vx+vw/2,cy=vy+vh/2;vw=nvw;vh=nvh;vx=cx-vw/2;vy=cy-vh/2;setView();});
+document.getElementById('cn-reset').addEventListener('click',()=>{vx=0;vy=0;vw=800;vh=560;setView();});
+
+// 팬 + 핀치줌
+let mightDrag=false,dragging=false,justDragged=false,sx=0,sy=0,startVx=0,startVy=0;
+const pointers=new Map();let pinchDist=0,pinchCx=0,pinchCy=0;
+function getSvgCoord(cx,cy){const r=svg.getBoundingClientRect();return{x:vx+(cx-r.left)/r.width*vw,y:vy+(cy-r.top)/r.height*vh};}
+svg.addEventListener('pointerdown',e=>{
+  pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(pointers.size===1){mightDrag=true;dragging=false;justDragged=false;sx=e.clientX;sy=e.clientY;startVx=vx;startVy=vy;}
+  else if(pointers.size===2){mightDrag=false;const pts=[...pointers.values()];pinchDist=Math.hypot(pts[0].x-pts[1].x,pts[0].y-pts[1].y);const mid={x:(pts[0].x+pts[1].x)/2,y:(pts[0].y+pts[1].y)/2};const svgP=getSvgCoord(mid.x,mid.y);pinchCx=svgP.x;pinchCy=svgP.y;}
+  try{svg.setPointerCapture(e.pointerId);}catch(_){}
+});
+svg.addEventListener('pointermove',e=>{
+  if(!pointers.has(e.pointerId))return;
+  pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(pointers.size===2){
+    const pts=[...pointers.values()];const d=Math.hypot(pts[0].x-pts[1].x,pts[0].y-pts[1].y);
+    if(pinchDist>0){const k=pinchDist/d;vw=Math.max(50,Math.min(800,vw*k));vh=Math.max(35,Math.min(560,vh*k));const mid={x:(pts[0].x+pts[1].x)/2,y:(pts[0].y+pts[1].y)/2};const r=svg.getBoundingClientRect();vx=pinchCx-(mid.x-r.left)/r.width*vw;vy=pinchCy-(mid.y-r.top)/r.height*vh;setView();}
+    pinchDist=d;justDragged=true;return;
   }
-  function group(d,tier){
-    const g=el('g',{class:'cn-item'});
-    g.dataset.name=d.n;g.dataset.han=d.h||'';g.dataset.era=d.e||'';g.dataset.desc=d.d||'';g.dataset.type=d.t||'';g.dataset.tier=tier||d.tier||2;
-    return g;
+  if(!mightDrag)return;
+  const dx=Math.abs(e.clientX-sx),dy=Math.abs(e.clientY-sy);
+  if(!dragging&&dx+dy>6){dragging=true;svg.classList.add('dragging');}
+  if(dragging){const r=svg.getBoundingClientRect();const scale=vw/r.width;vx=startVx-(e.clientX-sx)*scale;vy=startVy-(e.clientY-sy)*scale;setView();}
+});
+function endPtr(e){
+  pointers.delete(e.pointerId);
+  if(dragging)justDragged=true;
+  if(pointers.size<2)pinchDist=0;
+  if(pointers.size===0){mightDrag=false;dragging=false;svg.classList.remove('dragging');}
+  try{svg.releasePointerCapture(e.pointerId);}catch(_){}
+}
+svg.addEventListener('pointerup',endPtr);svg.addEventListener('pointercancel',endPtr);
+svg.addEventListener('wheel',e=>{e.preventDefault();const p=getSvgCoord(e.clientX,e.clientY);const k=e.deltaY<0?0.85:1/0.85;vw*=k;vh*=k;const r=svg.getBoundingClientRect();vx=p.x-(e.clientX-r.left)/r.width*vw;vy=p.y-(e.clientY-r.top)/r.height*vh;setView();},{passive:false});
+
+// 더블탭 확대 (모바일)
+let lastTap=0;
+svg.addEventListener('click',e=>{
+  const now=Date.now();
+  if(now-lastTap<300&&!justDragged){
+    const p=getSvgCoord(e.clientX,e.clientY);
+    zoomAt(p.x,p.y,0.6);
   }
+  lastTap=now;
+});
 
-  const SEAS=[
-    {n:'황해',h:'黃海',e:'한반도-중국 해로',d:"한반도와 중국 산동·강소 사이의 반폐쇄해. 평균 수심 44m로 얕음. 백제·신라·발해가 이 바다를 건너 당·송과 왕래. 원 세조의 두 차례 일본 원정(1274·1281) 출발점. 명·청대 조선 사행 항로. 청일전쟁 황해해전(1894)에서 북양함대 궤멸.",rx:648,ry:290,rw:105,rh:100,lx:695,ly:340,ls:12,tier:2},
-    {n:'발해',h:'渤海',e:'화북-요동 만',d:"화북·요동·산동에 둘러싸인 반폐쇄만. 진 시황·한 무제가 방사(方士)를 시켜 봉래·방장·영주 삼신산 불사약을 구하게 한 신화의 바다. 원·명·청대 대운하와 연결된 조운의 해로. 발해국(698~926)의 이름도 여기서 유래.",rx:585,ry:252,rw:52,rh:32,lx:610,ly:272,ls:10,tier:2},
-    {n:'동중국해',h:'東海',e:'중국-일본-류큐',d:"중국·한반도 남부·류큐·대만 사이 해역. 감진 화상이 6차 시도 끝에 여기를 건너 일본으로(753). 명대 왜구 활동의 무대. 정화 원정대의 첫 출발지. 현재 중일 조어도(센카쿠) 영유권 분쟁 수역.",rx:660,ry:390,rw:130,rh:70,lx:700,ly:420,ls:11,tier:2},
-    {n:'남중국해',h:'南海',e:'해상 실크로드',d:"중국 남부·베트남·필리핀·인도네시아 사이. 광주·천주·명주에서 출발한 상선이 향료·향목·상아를 실어온 해상 실크로드의 핵심. 명대 정화 원정의 주요 항로 — 인도양·아프리카 동안까지. 현재 9단선을 둘러싼 다국 영유권 분쟁.",rx:400,ry:520,rw:250,rh:38,lx:550,ly:540,ls:11,tier:2}
-  ];
-  const seasG=document.getElementById('cn-seas');
-  SEAS.forEach(s=>{
-    const g=group(s,s.tier);
-    g.appendChild(el('rect',{x:s.rx,y:s.ry,width:s.rw,height:s.rh,fill:'rgba(0,0,0,0.001)','pointer-events':'all'}));
-    g.appendChild(txt(s.lx,s.ly,s.n,{size:s.ls,color:'#3a6b85',italic:true,weight:700,'stroke-width':2.5}));
-    seasG.appendChild(g);
-  });
-
-  const TERRAINS=[
-    {n:'청장고원',h:'靑藏高原',e:'평균 해발 4,000m+',d:"'세계의 지붕'. 250만 km²로 세계 최대·최고 고원. 황하·장강·메콩·인더스·갠지스 6대 강 발원지. 토번(吐蕃, 7~9세기) 근거지 — 당과 대등하게 겨루며 문성공주 하가. 원·청대 편입.",p:'M 100,235 Q 88,300 128,342 Q 180,362 240,342 Q 282,320 275,268 Q 258,218 198,213 Q 138,208 100,235 Z',fill:'#e8dcc0',stroke:'#b8a075',lx:180,ly:290,lc:'#7a6a3a',ls:12},
-    {n:'황토고원',h:'黃土高原',e:'화하 문명의 요람',d:"바람에 쌓인 황토 100~300m 두께. 부드럽고 비옥해 초기 농경에 유리. 반파·앙소 문화, 주·진의 발상지. 요동(窯洞, 굴집) 주거. 황하 황토의 공급지.",p:'M 320,190 Q 300,220 315,258 Q 350,278 395,262 Q 420,232 405,198 Q 380,175 340,180 Q 325,183 320,190 Z',fill:'#efdcae',stroke:'#c9a24a',lx:355,ly:230,lc:'#8a5f1a',ls:12},
-    {n:'화북평원',h:'華北平原',e:'30만 km²',d:"황하·회하·해하가 만든 대충적평원. 밀·조·목화 주산지. 인구 밀집. 낙양·개봉·업성·은허 등 주요 도읍이 모두 여기 위치. 황하 범람이 잦은 재해지.",p:'M 435,232 Q 425,285 460,320 Q 510,335 555,318 Q 590,298 585,258 Q 560,222 510,218 Q 465,220 435,232 Z',fill:'#e8ecd0',stroke:'#a3b579',lx:510,ly:278,lc:'#5a7a2a',ls:11},
-    {n:'강남',h:'江南',e:'남송 이후 경제 중심',d:"장강 하류 삼각주와 태호 유역. 벼 이모작, 비단·차·자기 주산지. 남송 이후 경제·문화 중심이 화북에서 여기로 이동. '소호숙 천하족(蘇湖熟 天下足)'.",p:'M 500,362 Q 490,408 528,428 Q 582,438 618,418 Q 620,395 610,362 Q 572,346 532,352 Q 505,355 500,362 Z',fill:'#dcead0',stroke:'#8fa668',lx:560,ly:393,lc:'#5a7a2a',ls:11},
-    {n:'타클라마칸 사막',h:'塔克拉瑪干沙漠',e:'33만 km²',d:"타림분지 중앙. 위구르어로 '들어가면 나오지 못한다'. 세계 2위 이동사막. 실크로드는 남·북연을 우회. 오아시스 국가(누란·소륵·구자) 번영.",p:'M 128,178 Q 112,215 148,235 Q 200,235 240,213 Q 250,188 220,168 Q 178,158 148,166 Q 133,170 128,178 Z',fill:'#f0e4c4',stroke:'#b8a06a',lx:185,ly:205,lc:'#8a6a30',ls:10},
-    {n:'고비 사막',h:'戈壁沙漠',e:'유목민의 무대',d:"몽골고원의 반건조 지대. 흉노·선비·돌궐·회흘·거란·몽골의 활동 무대. 한 무제가 위청·곽거병을 파견해 흉노 정벌. 명대에 만리장성으로 방어.",p:'M 300,122 Q 285,142 312,158 Q 372,166 432,152 Q 472,142 460,122 Q 420,108 370,112 Q 320,112 300,122 Z',fill:'#f0e4c4',stroke:'#b8a06a',lx:380,ly:138,lc:'#8a6a30',ls:10},
-    {n:'사천분지',h:'四川盆地',e:"'천부지국'",d:"진령·대파산·운귀고원에 둘러싸인 26만 km² 분지. BC 3세기 이빙 부자의 도강언 관개로 옥토. 진이 통일 자본을 마련. 촉한·전촉·후촉의 근거지.",p:'M 265,340 Q 253,380 280,405 Q 320,415 350,395 Q 365,360 340,340 Q 300,330 275,335 Q 268,338 265,340 Z',fill:'#e0dcc0',stroke:'#a89670',lx:305,ly:378,lc:'#7a6a45',ls:10},
-    {n:'운귀고원',h:'雲貴高原',e:'다민족 지대',d:"중국 남서부. 해발 1,000~2,000m. 카르스트 지형. 남조·대리국이 자립. 백·이·묘·태족 등 25개 소수민족. 원 쿠빌라이가 정복하여 편입.",p:'M 260,385 Q 250,420 285,442 Q 320,450 345,432 Q 360,405 335,388 Q 300,378 275,382 Q 262,383 260,385 Z',fill:'#e8dcc0',stroke:'#b8a075',lx:300,ly:422,lc:'#7a6a45',ls:10},
-    {n:'동북평원',h:'東北平原',e:'35만 km² · 만주',d:"송화강·요하 유역. 검은 흑토로 곡물 생산량 최고. 고조선·부여·고구려·발해가 흥망. 이후 거란(요)·여진(금)·만주족(청)의 발상지.",p:'M 570,140 Q 555,175 585,200 Q 625,210 645,185 Q 660,155 635,135 Q 600,125 578,130 Q 572,133 570,140 Z',fill:'#e0e8d0',stroke:'#8fa668',lx:600,ly:170,lc:'#5a7a2a',ls:10}
-  ];
-  const terrainG=document.getElementById('cn-terrain');
-  TERRAINS.forEach(t=>{
-    const g=group(t,1);
-    g.appendChild(el('path',{d:t.p,fill:t.fill,stroke:t.stroke,'stroke-width':0.8,opacity:0.7}));
-    g.appendChild(txt(t.lx,t.ly,t.n,{size:t.ls,color:t.lc,italic:true,weight:700,'stroke-width':3}));
-    terrainG.appendChild(g);
-  });
-
-  const RIVERS=[
-    {n:'대운하',h:'京杭大運河',e:'수 양제 · 605~610',d:"북경~항주 1,794km. 세계 최장 인공수로. 수 양제가 남북 물자 유통을 위해 완성. 원·명·청 대에 정비. 강남 곡물·비단·차를 화북으로 수송한 대동맥.",paths:[{d:'M 555,210 Q 545,260 540,290 Q 540,320 542,340 Q 555,370 590,388',stroke:'#7fb3d4',width:4,dash:'3 2'}],labels:[{x:0,y:0,rot:78,tx:550,ty:300,size:10,color:'#4a8ea8',weight:700,'stroke-width':2.5}],tier:2},
-    {n:'황하',h:'黃河',e:'5,464km · 4대 강',d:"중국 제2의 강. 청장고원→발해. '几'자로 오르도스 사막을 감쌈. 황토를 대량 운반해 물이 누렇게 됨. 화하 문명의 어머니이자 '중국의 슬픔'.",paths:[{d:'M 190,268 Q 240,248 290,253 Q 330,238 350,202 Q 385,188 420,202 Q 452,222 462,252 Q 472,238 492,242 Q 522,253 558,242 Q 582,238 600,238',stroke:'#d4a95a',width:5,linecap:'round'}],labels:[{x:250,y:243,size:13,color:'#a68030',weight:800,'stroke-width':3,tier:1},{x:500,y:235,size:11,color:'#a68030',weight:700,'stroke-width':3,tier:2}],tier:1},
-    {n:'위수',h:'渭水',e:'황하 최대 지류',d:"감숙 발원, 섬서 관통, 황하 합류. 위수 분지가 '관중 평야' — 주의 풍호, 진의 함양, 한·수·당의 장안이 모두 여기.",paths:[{d:'M 300,290 Q 340,278 380,268 Q 405,262 420,258',stroke:'#d4a95a',width:3}],labels:[{x:340,y:298,size:10,color:'#a68030',weight:600,'stroke-width':2.5,tier:3}],tier:3},
-    {n:'회하',h:'淮河',e:'남북 경계 · 1,000km',d:"하남 발원, 홍택호로. 진령-회하선은 중국 남·북의 지리·기후·문화 경계. '귤이 회수를 건너면 탱자가 된다'. 남송·금의 국경선.",paths:[{d:'M 445,318 Q 490,323 540,328 Q 575,323 610,320',stroke:'#7ba8c9',width:3.5}],labels:[{x:500,y:313,size:11,color:'#3a6a95',weight:700,'stroke-width':3,tier:2}],tier:2},
-    {n:'장강 (양자강)',h:'長江 · 揚子江',e:'6,300km · 4대 강',d:"아시아 최장, 세계 3위. 청장고원→상해. 삼국지 적벽대전, 남조 방어선, 태평천국·무창봉기의 무대. 삼협댐(2003).",paths:[{d:'M 155,332 Q 210,342 265,352 Q 315,348 360,368 Q 410,392 465,392 Q 515,402 555,392 Q 595,392 620,378',stroke:'#5a8fb8',width:5,linecap:'round'}],labels:[{x:270,y:336,size:13,color:'#3a6a95',weight:800,'stroke-width':3,tier:1}],tier:1},
-    {n:'한수 (한강)',h:'漢水',e:'장강 최장 지류',d:"섬서 남부→무한에서 장강 합류. 유방이 여기서 '한왕'으로 즉위, 국호 '한(漢)'의 어원. → 한족·한자의 어원.",paths:[{d:'M 410,300 Q 430,340 450,370 Q 460,380 465,388',stroke:'#7ba8c9',width:3}],labels:[{x:418,y:352,size:10,color:'#3a6a95',weight:600,'stroke-width':2.5,tier:3}],tier:3},
-    {n:'상강',h:'湘江',e:'장강 지류 · 호남',d:"광서 발원, 호남 관통, 동정호로. 초 문화권으로 굴원 「이소」의 무대. 마왕퇴 한묘가 유역. 마오쩌둥 「심원춘·장사」의 배경.",paths:[{d:'M 445,455 Q 448,430 452,410 Q 458,395 463,388',stroke:'#7ba8c9',width:3}],labels:[{x:430,y:440,size:10,color:'#3a6a95',weight:600,'stroke-width':2.5,tier:3}],tier:3},
-    {n:'주강',h:'珠江',e:'2,214km · 4대 강',d:"서강·북강·동강 3개 지류가 광주 부근 합류. 남중국 최대. 광저우 삼각주는 명·청 해상 무역 관문, 현재 개혁개방의 심장.",paths:[{d:'M 385,455 Q 435,455 490,460 Q 540,462 570,450',stroke:'#5a8fb8',width:4}],labels:[{x:463,y:475,size:11,color:'#3a6a95',weight:700,'stroke-width':3,tier:2}],tier:2},
-    {n:'송화강',h:'松花江',e:'흑룡강 지류',d:"장백산(백두산) 천지 발원→흑룡강. 만주족·조선족의 무대. 부여·발해·여진·후금 활동 지역. 하얼빈·길림·장춘 유역.",paths:[{d:'M 590,148 Q 615,155 635,168 Q 645,172 655,170',stroke:'#7ba8c9',width:3.5}],labels:[{x:615,y:155,size:10,color:'#3a6a95',weight:600,'stroke-width':2.5,tier:3}],tier:3},
-    {n:'요하',h:'遼河',e:'1,394km · 요동',d:"내몽골 발원, 요동만으로. 요동·요서를 가르는 강. 고조선·고구려·발해·거란(요) 활동 무대. 요하문명(홍산문화).",paths:[{d:'M 580,150 Q 595,180 605,205 Q 610,225 615,238',stroke:'#7ba8c9',width:3}],labels:[{x:600,y:200,size:10,color:'#3a6a95',weight:600,'stroke-width':2.5,tier:3}],tier:3},
-    {n:'타림강',h:'塔里木河',e:'중국 최장 내륙하 · 2,179km',d:"파미르 발원, 타림분지 관통, 로프노르로 유입(현재 대부분 소실). 실크로드 오아시스의 젖줄.",paths:[{d:'M 105,222 Q 135,215 165,213 Q 195,215 225,215',stroke:'#7ba8c9',width:3}],labels:[{x:130,y:207,size:10,color:'#3a6a95',weight:600,'stroke-width':2.5,tier:3}],tier:3}
-  ];
-  const riversG=document.getElementById('cn-rivers');
-  RIVERS.forEach(r=>{
-    const g=group(r,r.tier);
-    r.paths.forEach(p=>{
-      const pathAttrs={d:p.d,stroke:p.stroke,'stroke-width':p.width,fill:'none'};
-      if(p.dash)pathAttrs['stroke-dasharray']=p.dash;
-      if(p.linecap)pathAttrs['stroke-linecap']=p.linecap;
-      g.appendChild(el('path',pathAttrs));
-    });
-    r.labels.forEach(l=>{
-      const t=txt(l.x,l.y,r.n,l);
-      if(l.tier)t.dataset.tier=l.tier;
-      if(l.rot){t.setAttribute('transform',`translate(${l.tx},${l.ty}) rotate(${l.rot})`);t.setAttribute('x',0);t.setAttribute('y',0);}
-      g.appendChild(t);
-    });
-    riversG.appendChild(g);
-  });
-
-  const WALLS=[
-    {n:'만리장성',h:'萬里長城',e:'진~명 · 21,196km',d:"전국시대 각국 성벽을 진 시황이 통합. 한 무제가 서쪽으로 확장(옥문·양관). 명대에 벽돌로 재축(14~17세기). 산해관(동)~가욕관(서). 북방 유목민 방어.",p:'M 218,168 Q 274,152 340,155 Q 410,148 470,152 Q 530,150 590,172',stroke:'#8a6a4a',width:5,dash:'8 3',lx:380,ly:140,ls:12,lc:'#5a3f24',lt:'━ 萬里長城 만리장성 ━',anchor:'middle',tier:1},
-    {n:'실크로드',h:'絲綢之路 · Silk Road',e:'한 무제 개통 · BC 2세기',d:"장안·낙양→하서회랑→타림분지→파미르→중앙아시아·페르시아·로마. BC 138년 장건의 서역 사행이 시초. 한·당대 최전성. 비단·자기·차 ↔ 향신료·유리·말. 불교·경교·마니교·이슬람 전래.",p:'M 100,220 Q 150,215 190,205 Q 230,215 265,222 Q 300,235 340,245 Q 370,253 390,260',stroke:'#c07535',width:3.5,dash:'4 3',lx:215,ly:243,ls:11,lc:'#8a4a10',lt:'絲綢之路 실크로드',italic:true,tier:2}
-  ];
-  const wallG=document.getElementById('cn-wall');
-  WALLS.forEach(w=>{
-    const g=group(w,w.tier);
-    g.appendChild(el('path',{d:w.p,stroke:w.stroke,'stroke-width':w.width,fill:'none','stroke-dasharray':w.dash}));
-    g.appendChild(txt(w.lx,w.ly,w.lt,{size:w.ls,color:w.lc,weight:w.tier===1?800:700,italic:w.italic,anchor:w.anchor,'stroke-width':3}));
-    wallG.appendChild(g);
-  });
-
-  const ITEMS=[
-    {t:'cap',tier:1,x:388,y:260,n:'장안·함양',h:'長安·咸陽 (現 西安)',e:'주·진·한·수·당',d:"황토고원 남단 위수 분지의 관중 평야. 주의 풍호에서 시작해 진의 함양, 한·수·당의 장안으로 이어진 3천 년 도읍. 당대 인구 100만+의 세계 최대 국제도시로 실크로드 동쪽 종점.",tx:10,ty:4,ta:'start'},
-    {t:'cap',tier:1,x:454,y:268,n:'낙양',h:'洛陽',e:'9왕조 도읍',d:"황하 남안, 이수·낙수 합류점. 주 성왕이 성주로 삼은 이래 후한·조위·서진·북위·수·당·후량·후당 9왕조 도읍. 후한 명제 때 백마사가 세워져 중국 불교의 시발점. 용문석굴 소재.",tx:10,ty:4,ta:'start'},
-    {t:'cap',tier:1,x:500,y:285,n:'개봉',h:'開封 · 東京',e:'북송',d:"황하 남안, 대운하 접점. 오대와 북송의 수도. 「청명상하도」의 세계 최대 도시(100만+). 1127년 정강의 변으로 여진 금나라에 함락.",tx:10,ty:4,ta:'start'},
-    {t:'cap',tier:1,x:555,y:205,n:'북경',h:'北京 · 大都 · 燕京',e:'요·금·원·명·청·현대',d:"화북평원 북단, 연산산맥 남록. 요의 남경, 금의 중도, 원의 대도로 성장. 명 영락제가 남경에서 천도(1421)하며 자금성 축조. 청·중화민국·현재의 수도.",tx:10,ty:-4,ta:'start'},
-    {t:'cap',tier:1,x:562,y:340,n:'남경',h:'南京 · 建康',e:'육조·명 초·중화민국',d:"장강 하류 남안. 삼국 오 손권이 건업으로. 이후 육조·남당·명 태조·태평천국·중화민국의 수도. 1937년 남경대학살.",tx:10,ty:4,ta:'start'},
-    {t:'cap',tier:1,x:597,y:386,n:'항주',h:'杭州 · 臨安',e:'오월·남송',d:"전당강 하구, 서호의 도시. 오월국·남송의 도읍(1138~1276). 대운하 남단. 마르코 폴로가 킨사이로 극찬.",tx:10,ty:4,ta:'start'},
-    {t:'cap',tier:1,x:305,y:340,n:'성도',h:'成都',e:'촉한·전촉·후촉',d:"사천분지 서부, 민강 유역. 이빙 부자의 도강언 관개로 옥토가 되어 '천부지국'. 촉한(유비·제갈량)의 도읍. 두보 초당, 무후사.",tx:-10,ty:4,ta:'end'},
-    {t:'cap',tier:1,x:465,y:190,n:'평성·대동',h:'平城 · 大同',e:'북위 (398~494)',d:"산서 북부. 북위 도무제~효문제 수도. 선비족 한화의 초기 무대. 부근 무주산에 운강석굴.",tx:8,ty:-8,ta:'start'},
-    {t:'cap',tier:1,x:513,y:250,n:'업성',h:'鄴 · 鄴城',e:'조위·후조·전연·동위·북제',d:"황하 북안. 조조가 하북 평정 후 위의 정치 중심. 삼대(동작대·금호대·빙정대) 축조. 이후 5왕조 도읍.",tx:8,ty:-4,ta:'start'},
-    {t:'cap',tier:1,x:605,y:170,n:'심양·성경',h:'瀋陽 · 盛京 · 奉天',e:'후금(청) 초기',d:"요녕성. 누르하치가 도읍으로 삼고, 홍타이지가 성경으로 개칭. 순치제 북경 천도 후 배도로 유지. 청조 발상지.",tx:8,ty:0,ta:'start'},
-    {t:'city',tier:2,x:490,y:238,n:'은허',h:'殷墟 · 安陽',e:'상 후기',d:"상나라 반경이 천도한 이래 273년간 도읍. 1899년 왕의영이 갑골 발견으로 상 왕조 실존 확인. 사모무정, 갑골문 15만 편 이상 출토.",tx:8,ty:-4,ta:'start'},
-    {t:'city',tier:2,x:590,y:365,n:'소주',h:'蘇州',e:'춘추 오·명·청',d:"춘추 오의 수도. 대운하가 관통. 태호 동안. 원림의 도시로 졸정원·유원 등 9개 정원이 세계문화유산.",tx:-8,ty:-3,ta:'end'},
-    {t:'city',tier:2,x:355,y:358,n:'중경',h:'重慶',e:'파국·근현대',d:"장강·가릉강 합류점. 파의 옛 땅. 남송이 몽골에 40년 저항한 조어성 인근. 항일전쟁기 국민정부 임시 수도.",tx:10,ty:4,ta:'start'},
-    {t:'city',tier:2,x:465,y:383,n:'형주·무한',h:'荊州 · 武漢',e:'초·삼국·근대',d:"장강 중류. 초의 정치·문화 중심. 삼국지 형주 쟁탈전. 무한은 1911년 무창봉기(신해혁명) 발발지.",tx:10,ty:-4,ta:'start'},
-    {t:'city',tier:2,x:495,y:458,n:'광주',h:'廣州 · 番禺',e:'남월·당~현대',d:"주강 하구. 남월국의 도읍. 당·송대 국제 무역항. 청대 광주 13행. 아편전쟁 발발지.",tx:8,ty:4,ta:'start'},
-    {t:'city',tier:2,x:443,y:218,n:'태원',h:'太原',e:'춘추 진·당 발상지',d:"분수 유역. 수말 이연·이세민이 여기서 거병(617)하여 당 건국. 오대 후한·북한의 수도.",tx:10,ty:-3,ta:'start'},
-    {t:'city',tier:2,x:322,y:242,n:'란주',h:'蘭州 · 金城',e:'한~현대',d:"감숙성. 황하 상류를 걸치는 유일한 대도시. 하서회랑의 관문. 한 무제가 서역 경략을 위해 금성군 설치.",tx:-8,ty:4,ta:'end'},
-    {t:'city',tier:2,x:450,y:412,n:'장사',h:'長沙',e:'초·근현대',d:"상강 유역, 호남 성도. 초 문화권. 1972년 마왕퇴 한묘 발굴 — 미이라 신추 부인. 마오쩌둥의 청소년기 활동지.",tx:10,ty:4,ta:'start'},
-    {t:'city',tier:2,x:525,y:262,n:'곡부',h:'曲阜',e:'노(魯)·주(周) 봉국',d:"산동성. 주공 단의 봉국 노의 수도. 공자·맹자의 고향. 공묘·공부·공림 '삼공'이 세계문화유산.",tx:8,ty:-3,ta:'start'},
-    {t:'city',tier:2,x:540,y:322,n:'양주',h:'揚州',e:'수·당·명·청',d:"장강·대운하 교차점. 수 양제가 강도로 순행, 여기서 시해됨. 당대 최대 상업도시. 감진 화상이 일본 도항 성공.",tx:8,ty:-3,ta:'start'},
-    {t:'city',tier:2,x:580,y:435,n:'천주',h:'泉州 · 刺桐',e:'송·원 해상 실크로드',d:"복건 해안. 송·원대 세계 최대급 항구 '자이툰'. 마르코 폴로·이븐 바투타 방문. 이슬람·마니교·경교 공존.",tx:8,ty:4,ta:'start'},
-    {t:'city',tier:2,x:293,y:397,n:'대리',h:'大理',e:'남조·대리국 (738~1253)',d:"운남 서부. 남조와 대리국의 수도로 500년간 독립. 백족의 근거지. 원 쿠빌라이가 1253년 정복.",tx:-8,ty:4,ta:'end'},
-    {t:'city',tier:2,x:183,y:315,n:'라싸',h:'拉薩 · 邏些',e:'토번 · 티베트',d:"청장고원 중심, 해발 3,650m. 7세기 토번 송찬간포의 수도. 당 문성공주가 왕비. 원·청대 편입. 달라이 라마의 포탈라궁.",tx:8,ty:4,ta:'start'},
-    {t:'city',tier:2,x:620,y:368,n:'상해',h:'上海 · 滬',e:'근현대',d:"장강 하구. 1842년 남경조약으로 개항하며 폭발적 성장. 조계지·와이탄. 중국 공산당 제1차 대회(1921) 개최지.",tx:8,ty:4,ta:'start'},
-    {t:'silk',tier:3,x:245,y:213,n:'돈황',h:'敦煌',e:'한~원',d:"감숙 서단. 한 무제 설치 하서사군의 하나. 실크로드 요충. 막고굴 735개 석굴·벽화가 세계문화유산. 왕원록이 발견한 장경동 문서 5만 점.",tx:8,ty:4,ta:'start'},
-    {t:'silk',tier:3,x:198,y:195,n:'하미',h:'哈密',e:'한~청',d:"타림분지 동단 오아시스. 서역 진입의 관문. 한 반초가 서역 경략. 청 준가르 정벌 과정에서 활용.",tx:-8,ty:-3,ta:'end'},
-    {t:'silk',tier:3,x:145,y:172,n:'우루무치',h:'烏魯木齊',e:'청~현대',d:"천산 북록. 청 건륭제의 준가르 정벌(1755) 이후 개발. 실크로드 천산북로의 요충. 현 신강 위구르 자치구 성도.",tx:8,ty:-3,ta:'start'},
-    {t:'silk',tier:3,x:100,y:220,n:'카슈가르',h:'喀什 · 疏勒',e:'한~현대',d:"타림분지 서단, 파미르 동쪽 관문. 실크로드 남·북 지선 합류점. 한대 소륵국, 당대 안서도호부. 이슬람 문화 중심.",tx:8,ty:4,ta:'start'},
-    {t:'silk',tier:3,x:168,y:190,n:'투루판',h:'吐魯番',e:'한~원',d:"천산 남록 오아시스. 해수면보다 낮은 분지(-154m). 고창국, 안서도호부. 위구르족 초기 중심지. 카레즈, 포도 명산지.",tx:-6,ty:-3,ta:'end'},
-    {t:'fort',tier:2,x:610,y:198,n:'산해관',h:'山海關',e:'명 · 만리장성 동단',d:"만리장성의 동쪽 끝. 명 홍무제 대장 서달이 축조(1381). '천하제일관' 편액. 1644년 오삼계가 청군을 이 관문 안으로 끌어들여 청조 입관과 명 멸망의 직접 계기.",tx:8,ty:-3,ta:'start'},
-    {t:'fort',tier:2,x:540,y:198,n:'거용관',h:'居庸關',e:'북경 방어',d:"북경 서북 40km. 팔달령과 함께 북경 방어의 핵심. 원대 운대에 6종 문자로 새긴 불경. 명·청대 몽골 방어의 최전선.",tx:-8,ty:-3,ta:'end'},
-    {t:'fort',tier:2,x:455,y:200,n:'안문관',h:'雁門關',e:'조·한~명',d:"산서 북부. 흉노·돌궐·거란·여진·몽골이 남하하던 통로. 조 무령왕이 방어. 한 무제 마읍 유인책의 발상지. 송대 양가장 무대.",tx:0,ty:-8,ta:'middle'},
-    {t:'fort',tier:2,x:275,y:200,n:'가욕관',h:'嘉峪關',e:'명 · 만리장성 서단',d:"만리장성의 서쪽 끝. 명 홍무제 명령으로 축조(1372). '천하제일웅관' 편액.",tx:8,ty:-3,ta:'start'},
-    {t:'fort',tier:2,x:230,y:207,n:'옥문관',h:'玉門關',e:'한 무제',d:"돈황 서북. 서역의 옥이 이 관문을 통해 들어와 이름. 실크로드 북로 관문. '봄바람은 옥문관을 넘지 못한다' — 왕지환의 시.",tx:-8,ty:-3,ta:'end'},
-    {t:'fort',tier:2,x:235,y:225,n:'양관',h:'陽關',e:'한 무제',d:"돈황 서남. 옥문관과 짝. 실크로드 남로 관문. '서쪽 양관을 나서면 옛 친구가 없다' — 왕유 「위성곡」.",tx:-8,ty:4,ta:'end'},
-    {t:'fort',tier:2,x:430,y:262,n:'함곡관',h:'函谷關',e:'전국~한',d:"황하 남안. 관중과 관동을 잇는 유일 통로. 노자가 여기서 도덕경을 남기고 서쪽으로. 진이 6국을 이 관문 뒤에서 지키며 통일.",tx:0,ty:-8,ta:'middle'},
-    {t:'fort',tier:2,x:418,y:275,n:'동관',h:'潼關',e:'후한~명',d:"황하·위수·낙수 3강 합류점. 함곡관을 대체한 관중 관문. 안사의 난 때 가서한이 대패, 현종이 촉으로 파천.",tx:6,ty:6,ta:'start'},
-    {t:'fort',tier:2,x:395,y:290,n:'무관',h:'武關',e:'전국~한',d:"장안 남쪽. 관중의 남쪽 관문. BC 207년 유방이 여기로 진입해 함양 무혈 입성 → 진 왕조 종결.",tx:-6,ty:5,ta:'end'},
-    {t:'fort',tier:2,x:322,y:315,n:'검문관',h:'劍門關',e:'삼국~',d:"사천 북부. '촉으로 통하는 험로'의 관문. '한 사람이 관문을 지키면 만인이 뚫을 수 없다'. 이백 「촉도난」의 무대. 촉한 방어의 핵심.",tx:-8,ty:4,ta:'end'},
-    {t:'fort',tier:2,x:378,y:353,n:'조어성',h:'釣魚城',e:'남송 vs 몽골',d:"중경 부근 합천. 남송이 몽골에 36년(1243~1279) 저항. 1259년 대칸 몽케가 여기서 전사 — 훌라구·바투가 회군하며 세계사의 방향을 바꿈. '신의 채찍이 부러진 곳'.",tx:8,ty:4,ta:'start'},
-    {t:'fort',tier:2,x:475,y:370,n:'양양성',h:'襄陽城',e:'남송 vs 몽골',d:"한수 유역. 삼국지 형주 쟁탈의 핵심. 남송이 몽골에 6년(1268~1273) 저지. 여문환이 지킴. 함락 후 남송 붕괴.",tx:8,ty:-4,ta:'start'},
-    {t:'mtn',tier:3,x:528,y:255,n:'태산',h:'泰山 (1,545m)',e:'오악의 으뜸',d:"산동. 오악 중 동악. 진 시황부터 청 강희·건륭까지 12명의 황제가 봉선 의식. 공자 '등태산이소천하'. 세계자연·문화 이중유산."},
-    {t:'mtn',tier:3,x:413,y:245,n:'화산',h:'華山',e:'오악의 서악',d:"섬서 위남. 화강암 절벽 5개 봉우리로 '천하제일험'. 도교 성지."},
-    {t:'mtn',tier:3,x:466,y:275,n:'숭산',h:'嵩山',e:'오악의 중악',d:"하남 등봉. 495년 창건된 소림사 소재 — 선종의 발상지이자 소림 무술의 요람."},
-    {t:'mtn',tier:3,x:454,y:425,n:'형산',h:'衡山',e:'오악의 남악',d:"호남 형양. 남악대묘 등 사찰·도관 밀집. 남종선 회양선사가 활동."},
-    {t:'mtn',tier:3,x:478,y:205,n:'항산',h:'恒山',e:'오악의 북악',d:"산서 대동 부근. 절벽에 매달아 지은 현공사(5세기 북위)로 유명."},
-    {t:'mtn',tier:3,x:163,y:275,n:'곤륜산맥',h:'崑崙山脈',e:'청장고원 북연',d:"타림분지 남쪽. 평균 해발 5,500m. 신화상 서왕모의 거처. 옥의 대산지 — 화전옥이 상나라 이래 중국 옥기의 원료."},
-    {t:'mtn',tier:3,x:135,y:170,n:'천산',h:'天山',e:'2,500km',d:"키르기스스탄까지 뻗은 대산맥. 타림·준가르 분지를 가름. 실크로드 천산북로·남로가 남·북 기슭을 통과."},
-    {t:'mtn',tier:3,x:475,y:225,n:'태행산맥',h:'太行山脈',e:'400km',d:"화북평원과 황토고원을 남북으로 가름. 태행팔형 — 8개 협곡 통로가 전략적 요충. 항일전쟁기 팔로군 근거지."},
-    {t:'mtn',tier:3,x:378,y:255,n:'진령',h:'秦嶺',e:'남북 지리 경계',d:"섬서 남부를 동서로 관통. 회하와 함께 '진령-회하선' — 중국 남·북의 결정적 경계선."},
-    {t:'lake',tier:2,x:444,y:402,n:'동정호',h:'洞庭湖',e:'호남 · 2대 담수호',d:"상강·자강·원강·례강 유입, 장강과 연결. '팔백리 동정'. 범중엄 「악양루기」의 무대. 호북·호남의 이름이 이 호수에서 유래."},
-    {t:'lake',tier:2,x:513,y:402,n:'파양호',h:'鄱陽湖',e:'강서 · 최대 담수호',d:"장강과 연결. 1363년 주원장이 진우량 함대를 격파한 파양호 대전 — 명 건국의 기틀."},
-    {t:'lake',tier:2,x:585,y:355,n:'태호',h:'太湖',e:'강소·절강 · 3대 담수호',d:"강남의 심장부. 소주·무석·상주가 연안. 태호석이 정원 조경석으로 명성."}
-  ];
-
-  const cities=document.getElementById('cn-cities'),mountains=document.getElementById('cn-mountains'),forts=document.getElementById('cn-forts');
-  const styles={cap:{fill:'#b85450',r:6.5,tsize:12.5,tw:700,tc:'#3a1810'},city:{fill:'#d97e3a',r:4.8,tsize:11,tw:600,tc:'#5a3210'},silk:{fill:'#3a9080',r:4.5,tsize:11,tw:600,tc:'#0e5c4a'},fort:{fill:'#5a4a70',r:0,tsize:10.5,tw:700,tc:'#2a1e40'},mtn:{fill:'#7a6a45',r:0,tsize:10,tw:600,tc:'#4d3f22'},lake:{fill:'#7ba8c9',r:0,tsize:10,tw:600,tc:'#2a5f80'}};
-  ITEMS.forEach(c=>{
-    const s=styles[c.t],g=group(c,c.tier);
-    if(c.t==='mtn')g.appendChild(el('path',{d:`M ${c.x-7},${c.y+5} L ${c.x},${c.y-7} L ${c.x+7},${c.y+5} Z`,fill:s.fill,stroke:'#fff','stroke-width':1}));
-    else if(c.t==='lake')g.appendChild(el('ellipse',{cx:c.x,cy:c.y,rx:10,ry:5,fill:s.fill,stroke:'#fff','stroke-width':1,opacity:0.85}));
-    else if(c.t==='fort')g.appendChild(el('path',{d:`M ${c.x},${c.y-6} L ${c.x+6},${c.y} L ${c.x},${c.y+6} L ${c.x-6},${c.y} Z`,fill:s.fill,stroke:'#fff','stroke-width':1.4,filter:'url(#cn-shadow)'}));
-    else g.appendChild(el('circle',{cx:c.x,cy:c.y,r:s.r,fill:s.fill,stroke:'#fff','stroke-width':1.7,filter:'url(#cn-shadow)'}));
-    g.appendChild(txt(c.x+(c.tx||8),c.y+(c.ty||4),c.n,{size:s.tsize,weight:s.tw,color:s.tc,anchor:c.ta,'stroke-width':2.8}));
-    if(c.t==='mtn'||c.t==='lake')mountains.appendChild(g);
-    else if(c.t==='fort')forts.appendChild(g);
-    else cities.appendChild(g);
-  });
-
-  const panel=document.getElementById('cn-panel'),pName=document.getElementById('cn-p-name'),pHan=document.getElementById('cn-p-han'),pTags=document.getElementById('cn-p-tags'),pDesc=document.getElementById('cn-p-desc');
-  const typeLabel={cap:'도읍',city:'주요 도시',silk:'실크로드 관문',fort:'성·관문',mtn:'산·산맥',lake:'호수',river:'강',wall:'구조물',terrain:'지형',sea:'바다','':'지역'};
-  function openPanel(el){
-    const d=el.dataset;
-    pName.textContent=d.name||'';pHan.textContent=d.han||'';
-    let ttype=d.type;
-    if(!ttype){const layer=el.closest('.cn-layer')?.dataset.layer;if(layer==='rivers')ttype='river';else if(layer==='wall')ttype='wall';else if(layer==='terrain')ttype='terrain';else if(layer==='seas')ttype='sea';}
-    pTags.innerHTML=`<span class="tag">${typeLabel[ttype]||''}</span>${d.era?`<span class="tag era">${d.era}</span>`:''}`;
-    pDesc.textContent=d.desc||'';panel.classList.add('show');
-  }
-  document.getElementById('cn-viewport').addEventListener('click',e=>{if(justDragged){justDragged=false;return;}const it=e.target.closest('.cn-item');if(it){e.stopPropagation();openPanel(it);}});
-  document.getElementById('cn-close').addEventListener('click',()=>panel.classList.remove('show'));
-
-  const DYN={
-    qin:{n:'秦 진',c:'#a89670',y:'BC 221 ~ 206 · 15년',d:'중국 최초의 통일 제국. 진 시황이 6국을 병합. 문자·도량형·화폐·수레 폭 통일. 만리장성 완성. 진도 건설. 분서갱유. 15년 만에 붕괴했으나 이후 2천 년 중국 왕조의 기본틀(황제·군현제·율령)을 남김.',p:'M 295,195 L 320,175 L 400,170 L 500,175 L 585,195 L 615,240 L 620,290 L 605,345 L 555,395 L 500,440 L 485,458 L 400,468 L 330,450 L 300,405 L 285,340 L 280,270 L 290,215 Z'},
-    han:{n:'漢 한',c:'#b85450',y:'BC 202 ~ AD 220',d:'400여 년의 대제국. 유방이 항우를 격파하고 건국. 무제 대 흉노 정벌, 장건의 서역 사행(BC 138)으로 실크로드 개통, 하서사군 설치. 유교 국교화. 왕망의 신 이후 광무제가 후한 재건.',p:'M 240,215 L 275,190 L 340,170 L 450,165 L 555,170 L 605,185 L 625,210 L 630,260 L 620,315 L 600,365 L 555,410 L 500,455 L 485,465 L 400,472 L 330,455 L 295,410 L 275,355 L 265,300 L 258,255 L 245,225 Z'},
-    tang:{n:'唐 당',c:'#d4a017',y:'618 ~ 907 · 290년',d:'세계 제국의 절정. 이연·이세민 태원 거병. 태종·현종 대 최대 판도. 장안 100만+의 국제도시. 이백·두보. 안사의 난(755) 이후 절도사 할거로 쇠락, 황소의 난·주전충으로 멸망.',p:'M 90,215 L 105,175 L 175,140 L 260,125 L 400,120 L 520,120 L 605,140 L 655,175 L 670,225 L 670,285 L 660,340 L 630,395 L 555,440 L 490,468 L 400,472 L 330,455 L 285,400 L 250,350 L 195,315 L 130,275 L 95,240 Z'},
-    nsong:{n:'北宋 북송',c:'#4a8ea8',y:'960 ~ 1127 · 167년',d:'문치주의. 조광윤 개봉 도읍. 성리학 태동. 나침반·화약·활자 인쇄술. 개봉 100만. 요에 연운16주, 서하에 하서 상실. 1127년 정강의 변으로 금나라에 함락.',p:'M 300,270 L 335,240 L 400,225 L 475,220 L 530,232 L 555,255 L 570,290 L 590,320 L 610,365 L 605,405 L 555,430 L 495,460 L 400,470 L 335,450 L 300,405 L 285,345 L 285,295 Z'},
-    ssong:{n:'南宋 남송',c:'#7a5aa8',y:'1127 ~ 1279 · 152년',d:'회하 이남으로 축소. 임안 도읍. 진령-회하선이 금과의 국경. 성리학 완성(주희). 몽골에 40년 저항(양양·조어). 1279년 애산 해전에서 육수부·문천상 순사.',p:'M 260,325 L 305,290 L 400,290 L 495,315 L 555,330 L 605,375 L 605,410 L 555,440 L 495,465 L 400,470 L 335,450 L 295,410 L 270,365 Z'},
-    yuan:{n:'元 원',c:'#3a5a80',y:'1271 ~ 1368 · 97년',d:'최초의 이민족 통일 왕조. 쿠빌라이 대도(북경) 천도. 팍스 몽골리카. 마르코 폴로 왕래. 4계급제. 파스파 문자. 홍건적·주원장 봉기로 1368년 붕괴.',p:'M 75,190 L 130,140 L 220,110 L 380,100 L 500,100 L 590,115 L 650,145 L 685,190 L 700,255 L 700,320 L 675,385 L 625,425 L 555,458 L 495,478 L 400,485 L 330,475 L 245,470 L 155,435 L 95,360 L 60,265 Z'},
-    ming:{n:'明 명',c:'#d97e3a',y:'1368 ~ 1644 · 276년',d:'한족 부흥 왕조. 주원장 남경 건국. 영락제 북경 천도(1421) 자금성. 정화 7차 원정(1405~1433). 만리장성 최종 완성. 이자성 난과 오삼계 청군 유도로 1644년 붕괴.',p:'M 200,180 L 275,150 L 400,140 L 500,140 L 595,160 L 640,190 L 650,230 L 660,290 L 650,345 L 620,395 L 555,435 L 495,462 L 400,470 L 330,450 L 285,395 L 270,335 L 275,270 L 265,215 Z'},
-    qing:{n:'淸 청',c:'#4a7a4a',y:'1644 ~ 1912 · 268년',d:'만주족 왕조. 강희·옹정·건륭 3대 성세 — 강역 사상 최대. 대만(1683)·티베트(1720)·신강(1759). 아편전쟁(1840)으로 반식민지화. 태평천국·의화단·신해혁명으로 붕괴, 부의 퇴위(1912).',p:'M 85,190 L 145,135 L 250,110 L 400,105 L 550,110 L 605,125 L 655,160 L 685,215 L 700,275 L 685,340 L 665,385 L 625,425 L 555,460 L 495,478 L 400,483 L 330,475 L 255,468 L 200,445 L 135,385 L 95,320 L 60,240 Z'}
-  };
-  const dynPath=document.getElementById('cn-dynasty'),dynInfo=document.getElementById('cn-dyn-info');
-  document.querySelectorAll('.cn-dyn-bar button').forEach(b=>{
-    b.addEventListener('click',()=>{
-      document.querySelectorAll('.cn-dyn-bar button').forEach(x=>{x.style.background='';x.style.color='';x.style.borderColor='';});
-      const k=b.dataset.dyn;
-      if(k==='none'){dynPath.setAttribute('d','');dynPath.setAttribute('fill','none');dynPath.setAttribute('stroke','none');dynInfo.classList.remove('show');dynInfo.innerHTML='';b.style.background='#3a3226';b.style.color='#f5efe0';}
-      else{const D=DYN[k];dynPath.setAttribute('d',D.p);dynPath.setAttribute('fill',D.c);dynPath.setAttribute('stroke',D.c);dynPath.setAttribute('stroke-width',2);dynPath.setAttribute('opacity',0.42);b.style.background=D.c;b.style.color='#fff';b.style.borderColor=D.c;dynInfo.innerHTML=`<b>${D.n}</b><span class="yr">${D.y}</span><div style="margin-top:6px">${D.d}</div>`;dynInfo.classList.add('show');}
-    });
-  });
-
-  document.querySelectorAll('.cn-toolbar button[data-layer]').forEach(b=>{
-    b.addEventListener('click',()=>{b.classList.toggle('active');const key=b.dataset.layer;document.querySelectorAll(`.cn-layer[data-layer="${key}"]`).forEach(g=>{g.style.display=b.classList.contains('active')?'':'none';});});
-  });
-  const wrap=document.getElementById('cn-wrap');
-  document.querySelectorAll('.cn-mode-bar button').forEach(b=>{
-    b.addEventListener('click',()=>{document.querySelectorAll('.cn-mode-bar button').forEach(x=>x.classList.remove('active'));b.classList.add('active');wrap.classList.remove('mode-core','mode-std','mode-detail');wrap.classList.add('mode-'+b.dataset.mode);});
-  });
-
-  const svg=document.getElementById('cn-svg');
-  let vx=0,vy=0,vw=800,vh=560;
-  function setView(){svg.setAttribute('viewBox',`${vx} ${vy} ${vw} ${vh}`);}
-  document.getElementById('cn-in').addEventListener('click',()=>{const cx=vx+vw/2,cy=vy+vh/2;vw*=0.7;vh*=0.7;vx=cx-vw/2;vy=cy-vh/2;setView();});
-  document.getElementById('cn-out').addEventListener('click',()=>{const cx=vx+vw/2,cy=vy+vh/2;vw=Math.min(800,vw/0.7);vh=Math.min(560,vh/0.7);vx=cx-vw/2;vy=cy-vh/2;setView();});
-  document.getElementById('cn-reset').addEventListener('click',()=>{vx=0;vy=0;vw=800;vh=560;setView();});
-
-  let mightDrag=false,dragging=false,justDragged=false,sx=0,sy=0,startVx=0,startVy=0,activePointer=null;
-  svg.addEventListener('pointerdown',e=>{mightDrag=true;dragging=false;justDragged=false;sx=e.clientX;sy=e.clientY;startVx=vx;startVy=vy;activePointer=e.pointerId;});
-  svg.addEventListener('pointermove',e=>{if(!mightDrag)return;const dx=Math.abs(e.clientX-sx),dy=Math.abs(e.clientY-sy);if(!dragging&&dx+dy>5){dragging=true;svg.classList.add('dragging');try{svg.setPointerCapture(e.pointerId);}catch(_){}}if(dragging){const r=svg.getBoundingClientRect();const scale=vw/r.width;vx=startVx-(e.clientX-sx)*scale;vy=startVy-(e.clientY-sy)*scale;setView();}});
-  function endDrag(){if(dragging)justDragged=true;mightDrag=false;dragging=false;svg.classList.remove('dragging');if(activePointer!==null){try{svg.releasePointerCapture(activePointer);}catch(_){}activePointer=null;}}
-  svg.addEventListener('pointerup',endDrag);svg.addEventListener('pointercancel',endDrag);
-  svg.addEventListener('wheel',e=>{e.preventDefault();const r=svg.getBoundingClientRect();const mx=vx+(e.clientX-r.left)/r.width*vw;const my=vy+(e.clientY-r.top)/r.height*vh;const k=e.deltaY<0?0.85:1/0.85;vw*=k;vh*=k;vx=mx-(e.clientX-r.left)/r.width*vw;vy=my-(e.clientY-r.top)/r.height*vh;setView();},{passive:false});
-
-  const noneBtn=document.querySelector('.cn-dyn-bar button[data-dyn="none"]');noneBtn.style.background='#3a3226';noneBtn.style.color='#f5efe0';
+const noneBtn=document.querySelector('.cn-dyn-bar button[data-dyn="none"]');noneBtn.style.background='#3a3226';noneBtn.style.color='#f5efe0';
 })();
 </script>
